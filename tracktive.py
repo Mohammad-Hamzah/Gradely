@@ -1,35 +1,49 @@
-import tkinter as tk
-import customtkinter as ctk
-from PIL import Image, ImageTk
+import rich #this module makes python execution more attractive
+from rich import print as rprint
+import time #this module is for time related things
 
-class MyFrame(ctk.CTkFrame):
-    def __init__(self, master, **kwargs):
-        super().__init__(master, **kwargs)
+#typewriter function
+def tw(string,sec=0.01,end='\n'):
+    for i in string:
+        print(i, end='',flush=True)
+        '''If flush is set to false
+        and if you print multiple lines quickly, 
+        they may all be sent to the terminal 
+        in a single operation rather than one at a time.
+        so setting flush to false, prints it immediately'''
+        time.sleep(sec)
+        #time.sleep(time in seconds)>> this forces the system to pause execution for given seconds
+    print(end=end)
 
-
-
-class Window(ctk.CTk):
-    def __init__(self):
-        super().__init__()
-        self.geometry("720x720+150+50")
-        self.title("Tracktive")
-        self.iconbitmap('assets/tracktivedark.ico')
-        ctk.set_appearance_mode("dark")
-
-        self.grid_rowconfigure((0,1,2,3,4), weight=1) 
-        self.grid_columnconfigure((0,1,2,3,4,5,6), weight=1)
-
-        self.my_frame = MyFrame(master=self)
-        self.my_frame.grid(row=2,rowspan=2, column=1,columnspan=5, sticky="nsew")
-
-        image = ctk.CTkImage(dark_image=Image.open('assets/tracktivedark.png'), size=(150, 150))
-
-        self.logo = ctk.CTkLabel(self, image=image,text="")
-        self.logo.grid(row=1, column=1)
-
-        self.text = ctk.CTkLabel(self, text="Tracktive",font=('Georgia',100),text_color='#3ef1f3')
-        self.text.grid(row=1,column=2,columnspan=3)
+#colored typewriter function
+def tw_color(string,sec=0.01,color='bold cyan',end=' '):
+    for i in string:
+        rprint(f"[{color}]{i}[/{color}]", end='',flush=True)
+        time.sleep(sec)
+    print(end=end)
 
 
-window = Window()
-window.mainloop()
+#INTRO
+
+#printing the logo
+with open (r'assets\ascii_image_new.txt') as file:
+    for line in file.readlines():
+        rprint(f"[cyan]{line}[/cyan]",end='')
+        time.sleep(0.01)
+    print()
+    print()
+
+tw_color("Welcome to Tracktive!\nPlease choose how you would like to login:\n1. Admin\n2. Teacher\n>",color='bold cyan',end='')
+
+while True:
+    usertype=input()
+    if usertype!='1' and usertype!='2':
+        tw_color("Please choose from the above options only! (1/2):\n>",end='')
+    else:
+        break
+
+tw_color("Please enter your username: ")
+un=input()
+tw_color("Please enter your password: ")
+pw=input()
+    

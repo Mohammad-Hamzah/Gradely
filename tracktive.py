@@ -1,49 +1,110 @@
-import rich #this module makes python execution more attractive
+from rich.traceback import install #this will show errors beautifully
 from rich import print as rprint
+from rich.table import Table #this will display tables beautifully
+from rich.console import Console
+from rich.panel import Panel
+from rich import box
+from rich.progress import Progress, TextColumn, BarColumn, SpinnerColumn #helps to create progress bars and spinners
 import time #this module is for time related things
+from pwinput import pwinput #this module will mask the password being entered as asterisk(*) on the screen
 
-#typewriter function
-def tw(string,sec=0.01,end='\n'):
+install() #calling the install function will overwrite the current error statement procedure and will show errors beautifully
+console=Console()
+
+#colored typewriter function
+def typewrite(string,sec=0.01,color='bold cyan',end='\n'):
     for i in string:
-        print(i, end='',flush=True)
+        rprint(f"[{color}]{i}[/{color}]", end='',flush=True)
         '''If flush is set to false
         and if you print multiple lines quickly, 
         they may all be sent to the terminal 
         in a single operation rather than one at a time.
-        so setting flush to false, prints it immediately'''
+        so setting flush to false, prints it immediately,
+        also here console.print() was giving unexpected results (colored slashes and numbers differently) so using rprint'''
+        
         time.sleep(sec)
-        #time.sleep(time in seconds)>> this forces the system to pause execution for given seconds
     print(end=end)
 
-#colored typewriter function
-def tw_color(string,sec=0.01,color='bold cyan',end=' '):
-    for i in string:
-        rprint(f"[{color}]{i}[/{color}]", end='',flush=True)
-        time.sleep(sec)
-    print(end=end)
+#textbox function
+def textbox(text,border='cyan',style=box.SQUARE):
+    box = Panel(f"{text}", border_style=border, box=style,expand=False)
+    console.print(box)
+
+#progress bar function
+def progress_bar(start='Loading...',end='Loaded Successfully.',sec=2,startcolor='bold yellow',endcolor='bold green'):
+    sleep=sec/100
+    with Progress(
+    TextColumn("{task.description}"),  # Task description in bold blue
+    BarColumn(complete_style=startcolor, finished_style=endcolor),  # Default bar style
+    ) as progress:
+        task = progress.add_task(f"[{startcolor}]{start}", total=100)
+
+        while not progress.finished:
+            time.sleep(sleep)
+            progress.update(task, advance=1)
+        
+        progress.update(task, description=f"[{endcolor}]{end}")
+        time.sleep(0.5)
+
+#spinner function
+def spinner(list=['','',''],start='Loading...',end=None,startcolor='bold yellow',endcolor='bold green',type='dots',spincolor='bold yellow'):
+    tasks = list 
+    # Start the status spinner with a message
+    with console.status(f"[{startcolor}]{start}",spinner=type,spinner_style=spincolor) as status:
+        while tasks:
+            # Get the first task from the list and remove it
+            task = tasks.pop(0)
+
+            # Simulate doing some work with sleep
+            time.sleep(1)
+            if task!='':
+                # Log the completion of the task
+                console.print(f"[{endcolor}]{task}[/]")
+    if end:
+        console.print(f"[{endcolor}]{end}")
+    time.sleep(0.5)
 
 
 #INTRO
 
+#asking for sql password and username
+while True:
+    typewrite("Please enter your SQL username (default=root): ",end='')
+    sqlu=input()
+    typewrite("Please enter your SQL password: ",end='')
+    sqlpw=pwinput(prompt='')
+
+    #simulating loading the app
+    spinner(list=['','',''],start='Verifying Credentials...',spincolor='yellow',startcolor='bold yellow')
+    if sqlpw=='yoursql':
+        typewrite("Credentials verified successfully!",color='bold green')
+        break
+    else:
+        typewrite("Incorrect credentials entered... Please try again!",color='bold red')
+
+        
+progress_bar(start='Loading App',startcolor='bold yellow',endcolor='bold green')
+
 #printing the logo
 with open (r'assets\ascii_image_new.txt') as file:
     for line in file.readlines():
-        rprint(f"[cyan]{line}[/cyan]",end='')
+        console.print(line,end='',style='cyan')
         time.sleep(0.01)
     print()
     print()
 
-tw_color("Welcome to Tracktive!\nPlease choose how you would like to login:\n1. Admin\n2. Teacher\n>",color='bold cyan',end='')
+typewrite("Welcome to Tracktive!\nPlease choose how you would like to login:\n1. Admin\n2. Teacher\n3. Student\n> ",color='bold cyan',end='')
+
 
 while True:
     usertype=input()
-    if usertype!='1' and usertype!='2':
-        tw_color("Please choose from the above options only! (1/2):\n>",end='')
+    if usertype!='1' and usertype!='2' and usertype!=3:
+        typewrite("Please choose from the above options only! (1/2/3):\n> ",color='bold yellow',end='')
     else:
         break
 
-tw_color("Please enter your username: ")
+typewrite("Please enter your username: ",end='') #CANT BE EMPTY
 un=input()
-tw_color("Please enter your password: ")
-pw=input()
+typewrite("Please enter your password: ",end='')
+pw=pwinput(prompt='')
     

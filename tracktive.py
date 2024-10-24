@@ -1,3 +1,4 @@
+import mysql.connector
 from rich.traceback import install #this will show errors beautifully
 from rich import print as rprint
 from rich.table import Table #this will display tables beautifully
@@ -7,6 +8,7 @@ from rich import box
 from rich.progress import Progress, TextColumn, BarColumn, SpinnerColumn #helps to create progress bars and spinners
 import time #this module is for time related things
 from pwinput import pwinput #this module will mask the password being entered as asterisk(*) on the screen
+import mysql.connector
 
 install() #calling the install function will overwrite the current error statement procedure and will show errors beautifully
 console=Console()
@@ -58,7 +60,7 @@ def spinner(list=['','',''],start='Loading...',end=None,startcolor='bold yellow'
             # Simulate doing some work with sleep
             time.sleep(1)
             if task!='':
-                # Log the completion of the task
+                # Print the completion of the task
                 console.print(f"[{endcolor}]{task}[/]")
     if end:
         console.print(f"[{endcolor}]{end}")
@@ -75,15 +77,29 @@ while True:
     sqlpw=pwinput(prompt='')
 
     #simulating loading the app
-    spinner(list=['','',''],start='Establishing connection...',spincolor='yellow',startcolor='bold yellow')
-    if sqlpw=='yoursql': #this is just for time being later will be replaced by a function 
-        typewrite("Connection Established!",color='bold green')
-        break
-    else:
-        typewrite("Incorrect username or password... Please try again!",color='bold red')
+    spinner(list=['','',''],start='Establishing secure connection...',spincolor='yellow',startcolor='bold yellow')
+
+    try:
+        # Try to connect to the database
+        db = mysql.connector.connect(
+            host='localhost',
+            user=sqlu,
+            passwd=sqlpw
+        )
+
+        if db.is_connected():
+            typewrite("Connected!",color='bold green')
+            break
+
+    except mysql.connector.Error as e:
+        if e.errno==1045:
+            typewrite("Incorrect username or password... Please try again!",color='bold red')
+        else:
+            typewrite(f"Encountered {e}... Please try again!",color='bold red')
+
 
         
-progress_bar(start='Loading App',startcolor='bold yellow',endcolor='bold green')
+progress_bar(start='Loading app',startcolor='bold yellow',endcolor='bold green')
 
 #printing the logo
 with open (r'assets\ascii_image_new.txt') as file:
@@ -107,4 +123,6 @@ typewrite("Please enter your username: ",end='') #CANT BE EMPTY
 un=input()
 typewrite("Please enter your password: ",end='')
 pw=pwinput(prompt='')
-    
+
+#simulating checking password
+spinner(list=['','',''],start='Verifying credentials...',spincolor='yellow',startcolor='bold yellow')

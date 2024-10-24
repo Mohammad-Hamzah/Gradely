@@ -75,12 +75,12 @@ while True:
     sqlpw=pwinput(prompt='')
 
     #simulating loading the app
-    spinner(list=['','',''],start='Verifying Credentials...',spincolor='yellow',startcolor='bold yellow')
-    if sqlpw=='yoursql':
-        typewrite("Credentials verified successfully!",color='bold green')
+    spinner(list=['','',''],start='Establishing connection...',spincolor='yellow',startcolor='bold yellow')
+    if sqlpw=='yoursql': #this is just for time being later will be replaced by a function 
+        typewrite("Connection Established!",color='bold green')
         break
     else:
-        typewrite("Incorrect credentials entered... Please try again!",color='bold red')
+        typewrite("Incorrect username or password... Please try again!",color='bold red')
 
         
 progress_bar(start='Loading App',startcolor='bold yellow',endcolor='bold green')
@@ -98,7 +98,7 @@ typewrite("Welcome to Tracktive!\nPlease choose how you would like to login:\n1.
 
 while True:
     usertype=input()
-    if usertype!='1' and usertype!='2' and usertype!=3:
+    if usertype!='1' and usertype!='2' and usertype!='3':
         typewrite("Please choose from the above options only! (1/2/3):\n> ",color='bold yellow',end='')
     else:
         break

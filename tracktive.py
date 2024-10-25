@@ -33,7 +33,7 @@ def textbox(text,border='cyan',style=box.SQUARE):
     console.print(box)
 
 #progress bar function
-def progress_bar(start='Loading...',end='Loaded Successfully.',sec=2,startcolor='bold yellow',endcolor='bold green'):
+def progress_bar(start='Loading...',end='Loading...',sec=2,startcolor='bold yellow',endcolor='bold green'):
     sleep=sec/100
     with Progress(
     TextColumn("{task.description}"),  # Task description in bold blue
@@ -45,7 +45,9 @@ def progress_bar(start='Loading...',end='Loaded Successfully.',sec=2,startcolor=
             time.sleep(sleep)
             progress.update(task, advance=1)
         
+
         progress.update(task, description=f"[{endcolor}]{end}")
+            
         time.sleep(0.5)
 
 #spinner function
@@ -66,7 +68,15 @@ def spinner(list=['','',''],start='Loading...',end=None,startcolor='bold yellow'
         console.print(f"[{endcolor}]{end}")
     time.sleep(0.5)
 
-
+def valid_input(list,warning='Please choose from the given options only!'):
+    
+    while True:
+        var=input()
+        if var in list:
+            return var
+        else:
+            typewrite(f"{warning}:\n> ",color='bold yellow',end='')
+            
 #INTRO
 
 #asking for sql password and username
@@ -99,7 +109,7 @@ while True:
 
 
         
-progress_bar(start='Loading app',startcolor='bold yellow',endcolor='bold green')
+progress_bar()
 
 #printing the logo
 with open (r'assets\ascii_image_new.txt') as file:
@@ -111,13 +121,7 @@ with open (r'assets\ascii_image_new.txt') as file:
 
 typewrite("Welcome to Tracktive!\nPlease choose how you would like to login:\n1. Admin\n2. Teacher\n3. Student\n> ",color='bold cyan',end='')
 
-
-while True:
-    usertype=input()
-    if usertype!='1' and usertype!='2' and usertype!='3':
-        typewrite("Please choose from the above options only! (1/2/3):\n> ",color='bold yellow',end='')
-    else:
-        break
+usertype=valid_input(["1","2","3"],warning="Please choose from the given options only! (1,2,3)")
 
 typewrite("Please enter your username: ",end='') #CANT BE EMPTY
 un=input()

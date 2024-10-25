@@ -1,2 +1,3 @@
 rich
 pwinput
+mysql.connector

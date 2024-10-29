@@ -119,7 +119,7 @@ with open (r'assets\ascii_image_new.txt') as file:
     print()
     print()
 
-typewrite("Welcome to Tracktive!\nPlease choose how you would like to login:\n1. Admin\n2. Teacher\n3. Student\n> ",color='bold cyan',end='')
+typewrite("Welcome to TrackEd!\nPlease choose how you would like to login:\n1. Admin\n2. Teacher\n3. Student\n> ",color='bold cyan',end='')
 
 usertype=valid_input(["1","2","3"],warning="Please choose from the given options only! (1,2,3)")
 

@@ -1,7 +1,2 @@
-test.py
-hello.pdf
-iisjheader.svg
-Page 1.png
-header_image.png
-stamp_image1.png
-stamp_image2.png
+testfiles
+__pycache__

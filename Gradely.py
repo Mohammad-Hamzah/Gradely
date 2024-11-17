@@ -8,11 +8,11 @@ from rich import box
 from rich.progress import Progress, TextColumn, BarColumn, SpinnerColumn #helps to create progress bars and spinners
 import time #this module is for time related things
 from pwinput import pwinput #this module will mask the password being entered as asterisk(*) on the screen
-import mysql.connector
+import mysql.connector as sql
+import bcrypt #for passwords
 
 install() #calling the install function will overwrite the current error statement procedure and will show errors beautifully
 console=Console()
-
 #colored typewriter function
 def typewrite(string,sec=0.01,color='bold cyan',end='\n'):
     for i in string:
@@ -50,6 +50,7 @@ def progress_bar(start='Loading...',end='Loading...',sec=2,startcolor='bold yell
             
         time.sleep(0.5)
 
+
 #spinner function
 def spinner(list=['','',''],start='Loading...',end=None,startcolor='bold yellow',endcolor='bold green',type='dots',spincolor='bold yellow'):
     tasks = list 
@@ -77,6 +78,21 @@ def valid_input(list,warning='Please choose from the given options only!'):
         else:
             typewrite(f"{warning}:\n> ",color='bold yellow',end='')
             
+def dbconnect(cursor,database):
+    cursor.execute('SHOW DATABASES')
+    dbs=cursor.fetchall()
+    for db in dbs:
+        if 'gradely' in db:
+            database.database='gradely'
+        else:
+            #I will add the required code later
+            pass
+
+def hashpw(inputpw):
+    salt = bcrypt.gensalt()
+    hashed = bcrypt.hashpw(inputpw.encode(), salt)
+    return hashed
+
 #INTRO
 
 #asking for sql password and username
@@ -99,6 +115,8 @@ while True:
 
         if db.is_connected():
             typewrite("Connected!",color='bold green')
+            cur=db.cursor()
+            dbconnect(cur,db)
             break
 
     except mysql.connector.Error as e:
@@ -111,22 +129,32 @@ while True:
         
 progress_bar()
 
-#printing the logo
-with open (r'assets\ascii_image_new.txt') as file:
-    for line in file.readlines():
-        console.print(line,end='',style='cyan')
-        time.sleep(0.01)
-    print()
-    print()
+typewrite("Welcome to Gradely!\nPlease choose how you would like to login:\n1. Admin\n2. Teacher\n> ",color='bold cyan',end='')
 
-typewrite("Welcome to TrackEd!\nPlease choose how you would like to login:\n1. Admin\n2. Teacher\n3. Student\n> ",color='bold cyan',end='')
+usertype=valid_input(["1","2"],warning="Please choose from the given options only! (1/2)")
 
-usertype=valid_input(["1","2","3"],warning="Please choose from the given options only! (1,2,3)")
+while True:
+    typewrite("Please enter your username: ",end='') #CANT BE EMPTY
+    inputun=input()
+    typewrite("Please enter your password: ",end='')
+    inputpw=pwinput(prompt='')
 
-typewrite("Please enter your username: ",end='') #CANT BE EMPTY
-un=input()
-typewrite("Please enter your password: ",end='')
-pw=pwinput(prompt='')
+    #simulating checking password
+    spinner(list=['','',''],start='Verifying credentials...',spincolor='yellow',startcolor='bold yellow')
+    pwcheck=False
+    if usertype=='1':
+        cur.execute("select * from adm")
+        creds=cur.fetchall()
+        for cred in creds:
+            if cred[0]==inputun:
+                storedpw=cred[1]
+                if bcrypt.checkpw(inputpw.encode(), storedpw):
+                    pwcheck=True
+                    break
+        if pwcheck:
+                typewrite("Credentials verified.",color='bold green')
+                progress_bar(start='Logging in...',startcolor='bold green')
+                break
+        else:
+                typewrite("Incorrect username or password! Please try again!",color='bold red')
 
-#simulating checking password
-spinner(list=['','',''],start='Verifying credentials...',spincolor='yellow',startcolor='bold yellow')

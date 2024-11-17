@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 import bcrypt
 
 db=sql.connect(host='localhost',user='root',password='yoursql',database='gradely')
-c=db.cursor()
+cur=db.cursor()
 
 def setupadm():
     dat={'admin1':'welcome','hamzah':'hamzahiisj'}
@@ -15,9 +15,9 @@ def setupadm():
         hashed = bcrypt.hashpw(password.encode(), salt)
         query = "INSERT INTO adm (username, hashed_pw) VALUES (%s, %s)"
         data = (i, hashed)
-        c.execute(query, data)
+        cur.execute(query, data)
     db.commit()
-# setupadm()
+#setupadm() use this when creating sample for this table
 
 def setupsubjects():
     subco= {
@@ -38,9 +38,9 @@ def setupsubjects():
     }
 
     for subject in subco:
-        c.execute(f'insert into subjects(subid,subname) values ("{subco[subject]}","{subject}")')
+        cur.execute(f'insert into subjects(subid,subname) values ("{subco[subject]}","{subject}")')
         db.commit()
-# setupsubjects()
+#setupsubjects() use this when creating sample for this table
 
 def setupexams():
     sub={'English':80,'Physics':70,'Chemistry':70,'Biology':70,'Mathematics':80,'Marketing':80,'Accounts':80,'Business':80,'Economics':80,'PEd':70,'Computer':70,'IP':70,'Arabic':80,'Urdu':80}
@@ -48,21 +48,21 @@ def setupexams():
 
     for subject in sub:
 
-        c.execute(f'SELECT subid FROM subjects WHERE subname = "{subject}"')
-        subid = c.fetchone()[0]
+        cur.execute(f'SELECT subid FROM subjects WHERE subname = "{subject}"')
+        subid = cur.fetchone()[0]
 
         for exam in exams:
             if 'Unit' in exam:
                 temp=(exam,subid,25)
-                c.execute(f'insert into exams values{temp}')
+                cur.execute(f'insert into exams values{temp}')
 
             else:
                 x=sub[subject]
                 temp=(exam,subid,x)
-                c.execute(f'insert into exams values{temp}')
+                cur.execute(f'insert into exams values{temp}')
             
     db.commit()
-# setupexams()
+#setupexams() use this when creating sample for this table
 
 def setupteachers():
     strs={'English':['Mrs. Farhana Khan','Mrs. Amena Khan','Mr. Alavi Said'],'Physics':['Mr. Mariadas Thomas'],'Chemistry':['Mrs. Sheenu Rajesh','Mr. Biju Anthony'],
@@ -88,13 +88,13 @@ def setupteachers():
 
             # Execute the query
             try:
-                c.execute(insert_query, (tid, teacher))
+                cur.execute(insert_query, (tid, teacher))
             except sql.connector.Error as err:
                 print(f"Error inserting {teacher}: {err}")
 
     # Commit changes to the database
     db.commit()
-#setupteachers()
+#setupteachers() use this when creating sample for this table
 
 def setupteachersubjects():
     strs={'English':['Mrs. Farhana Khan','Mrs. Amena Khan','Mr. Alavi Said'],'Physics':['Mr. Mariadas Thomas'],'Chemistry':['Mrs. Sheenu Rajesh','Mr. Biju Anthony'],
@@ -104,8 +104,8 @@ def setupteachersubjects():
 
     for subject in strs:
         # Fetch SubID for the subject
-        c.execute("SELECT SubID FROM Subjects WHERE SubName = %s", (subject,))
-        result = c.fetchone()
+        cur.execute("SELECT SubID FROM Subjects WHERE SubName = %s", (subject,))
+        result = cur.fetchone()
         if result is None:
             print(f"Subject '{subject}' not found in database.")
             continue
@@ -114,8 +114,8 @@ def setupteachersubjects():
         # Loop through each teacher for the current subject
         for trs in strs[subject]:
             # Fetch TID for the teacher
-            c.execute("SELECT TID FROM Teachers WHERE TName = %s", (trs,))
-            teacher_result = c.fetchone()
+            cur.execute("SELECT TID FROM Teachers WHERE TName = %s", (trs,))
+            teacher_result = cur.fetchone()
             if teacher_result is None:
                 print(f"Teacher '{trs}' not found in database.")
                 continue
@@ -123,9 +123,9 @@ def setupteachersubjects():
 
             # Insert into TeacherSubjects if not already exists
             
-            c.execute("INSERT INTO TeacherSubjects (TID, SubID) VALUES (%s, %s)", (tid, subid))
+            cur.execute("INSERT INTO TeacherSubjects (TID, SubID) VALUES (%s, %s)", (tid, subid))
     db.commit()
-#setupteachersubjects()
+#setupteachersubjects() use this when creating sample for this table
 
 def setupcts():
     # CREATE TABLE CTs(
@@ -148,8 +148,8 @@ def setupcts():
         hashed = bcrypt.hashpw(password.encode(), salt)
 
         # Fetch the TID
-        c.execute("SELECT TID FROM Teachers WHERE TName = %s", (teacher_name,))
-        tid_result = c.fetchone()
+        cur.execute("SELECT TID FROM Teachers WHERE TName = %s", (teacher_name,))
+        tid_result = cur.fetchone()
         if tid_result:
             tid = tid_result[0]
         else:
@@ -157,9 +157,9 @@ def setupcts():
             continue
 
         # Insert into CTs table
-        c.execute("INSERT INTO CTs (CTID, CTName, Hashed_PW) VALUES (%s, %s, %s)", (tid, teacher_name, hashed))
+        cur.execute("INSERT INTO CTs (CTID, CTName, Hashed_PW) VALUES (%s, %s, %s)", (tid, teacher_name, hashed))
     db.commit()
-#setupcts()
+#setupcts() use this when creating sample for this table
 
 def setupcls():
     # CREATE TABLE Class(
@@ -173,18 +173,18 @@ def setupcls():
 
     for cl in classes:
         cls=cl
-        c.execute(f"select tid from teachers where tname='{classes[cl]}'")
-        ctid=c.fetchone()[0]
+        cur.execute(f"select tid from teachers where tname='{classes[cl]}'")
+        ctid=cur.fetchone()[0]
         if cl.endswith('1') or cl.endswith('2'):
             cstream='Commerce 1'
         elif cl.endswith('3') or cl.endswith('4'):
             cstream='Commerce 2'
         else:
             cstream='Science'
-        c.execute("insert into class values (%s,%s,%s)", (cls,ctid,cstream))
+        cur.execute("insert into class values (%s,%s,%s)", (cls,ctid,cstream))
 
     db.commit()
-#setupcls()
+#setupcls() use this when creating sample for this table
 
 def setupstudents():
     # CREATE TABLE Students(
@@ -282,10 +282,10 @@ def setupstudents():
             dob=generate_random_dob()
             roll=i+1
             tup=(grno,name,father,mother,dob,cl,roll)
-            c.execute("insert into students values(%s,%s,%s,%s,%s,%s,%s)",tup)
+            cur.execute("insert into students values(%s,%s,%s,%s,%s,%s,%s)",tup)
             
     db.commit()
-#setupstudents()
+#setupstudents() use this when creating sample for this table
 
 def setupstudentsubjects():
     # CREATE TABLE StudentSubjects(
@@ -297,8 +297,8 @@ def setupstudentsubjects():
     # );
 
     # Fetch all GR numbers
-    c.execute("SELECT grno FROM students")
-    grnolist = c.fetchall()
+    cur.execute("SELECT grno FROM students")
+    grnolist = cur.fetchall()
 
     # Subject lists
     c1comp = ['English', 'Marketing', 'IP', 'Business']
@@ -311,11 +311,11 @@ def setupstudentsubjects():
 
     for grno in grnolist:
         # Fetch the stream for the student
-        c.execute(
+        cur.execute(
             "SELECT cstream FROM class JOIN students ON students.class = class.class WHERE grno = %s",
             (grno[0],)
         )
-        cstream = c.fetchone()[0]
+        cstream = cur.fetchone()[0]
 
         # Determine subjects based on stream
         if cstream == 'Commerce 1':
@@ -329,16 +329,16 @@ def setupstudentsubjects():
 
         # Map subjects to subid and insert into studentsubjects
         for s in sub:
-            c.execute("SELECT subid FROM subjects WHERE subname = %s", (s,))
-            subid_result = c.fetchone()
+            cur.execute("SELECT subid FROM subjects WHERE subname = %s", (s,))
+            subid_result = cur.fetchone()
             if subid_result:  # Check if subject exists
                 subid = subid_result[0]
-                c.execute("INSERT INTO studentsubjects VALUES (%s, %s)", (grno[0], subid))
+                cur.execute("INSERT INTO studentsubjects VALUES (%s, %s)", (grno[0], subid))
 
     # Commit the transaction
     db.commit()
     #select subjects.subid,subjects.subname from subjects join studentsubjects on subjects.subid=studentsubjects.subid where grno=49869;
-#setupstudentsubjects()
+#setupstudentsubjects() use this when creating sample for this table
 
 def setupmarks():
     # CREATE TABLE Marks(
@@ -364,46 +364,88 @@ def setupmarks():
             marks=int(percentage*maxmarks)
         return marks
     # Fetch all GRNos
-    c.execute("SELECT GRNo FROM Students")
-    grno_list = c.fetchall()
+    cur.execute("SELECT GRNo FROM Students")
+    grno_list = cur.fetchall()
 
     # Fetch exams
-    c.execute("SELECT DISTINCT Exam FROM Exams")
-    exam_list = c.fetchall()
+    cur.execute("SELECT DISTINCT Exam FROM Exams")
+    exam_list = cur.fetchall()
 
     # Iterate through students
     for grno in grno_list:
         # Fetch subjects specific to this student
-        c.execute("SELECT SubID FROM StudentSubjects WHERE GRNo = %s", (grno[0],))
-        subject_list = c.fetchall()
+        cur.execute("SELECT SubID FROM StudentSubjects WHERE GRNo = %s", (grno[0],))
+        subject_list = cur.fetchall()
         prob=['low','med','med','med','med','med','med','high','high']
         choice=random.choice(prob)
         # Assign marks for each subject and exam
         for subid in subject_list:
             for exam in exam_list:
-                c.execute("select maxmarks from exams where exam= %s", exam)
-                maxmarks=c.fetchall()[0][0]
+                cur.execute("select maxmarks from exams where exam= %s", exam)
+                maxmarks=cur.fetchall()[0][0]
                 marks = generate_marks(maxmarks,choice)  # Use the function to generate marks
-                c.execute(
+                cur.execute(
                     "INSERT INTO Marks (GRNo, SubID, Exam, Marks) VALUES (%s, %s, %s, %s)",
                     (grno[0], subid[0], exam[0], marks)
                 )
 
     db.commit()
-# setupmarks()
+#setupmarks() use this when creating sample for this table
 
+def setupclasssubjects():
+    # CREATE TABLE ClassSubjects(
+    # Class VARCHAR(15),
+    # SubID CHAR(3),
+    # TID INT,
+    # PRIMARY KEY (Class, SubID),
+    # FOREIGN KEY (Class) REFERENCES Class(Class) ON DELETE CASCADE,
+    # FOREIGN KEY (SubID) REFERENCES Subjects(SubID) ON DELETE CASCADE,
+    # FOREIGN KEY (TID) REFERENCES Teachers(TID) ON DELETE SET NULL
+    # );
 
-# strs={'English':['Mrs. Farhana Khan','Mrs. Amena Khan','Mr. Alavi Said'],'Physics':['Mr. Mariadas Thomas'],'Chemistry':['Mrs. Sheenu Rajesh','Mr. Biju Anthony'],
-#             'Biology':['Dr. Javeed Iftekhar'],'Mathematics':['Mr. Hari Krishna','Mr. Javed Aslam'],'PEd':['Mr. Imran Khan','Mr. Aadil'],'Computer':['Mrs. Urooj Fatima','Mr. Qurban'],
-#             'Ip':['Mrs. Urooj Fatima','Mr. Qurban'],'Urdu':['Mr. Obaid Khan'],'Arabic':['Mr. Altaf Hussain'],'Business':['Mrs. Safa','Mrs. Shaniba','Mrs. Nasera'],
-#             'Accounts':['Mr. Akram','Mrs. Siddiqua Bano'],'Economics':['Mr. Sainuddeen','Mr. Feroz Kidwai'],'Marketing':['Mrs. Safa','Mrs. Nasera','Mrs. Siddiqua Bano']}
-    
-# c1comp = ['English', 'Marketing', 'IP', 'Business']
-# c1opt = ['PEd', 'Urdu', 'Arabic']
-# c2comp = ['English', 'Accounts', 'Business', 'Economics']
-# c2opt = ['Mathematics', 'IP', 'Marketing', 'PEd', 'Urdu', 'Arabic']
-# scomp = ['English', 'Physics', 'Chemistry']
-# sopt1 = ['Mathematics', 'Biology']
-# sopt2 = ['Biology', 'Computer', 'PEd', 'Urdu', 'Arabic']
+    strs={'English':[['Mrs. Farhana Khan','Mrs. Amena Khan','Mr. Alavi Said'],['12b01','12b02','12b03','12b04','12b05','12b06','12b07']],
+        'Physics':[['Mr. Mariadas Thomas'],['12b05','12b06','12b07']],
+        'Chemistry':[['Mrs. Sheenu Rajesh','Mr. Biju Anthony'],['12b05','12b06','12b07']],
+                'Biology':[['Dr. Javeed Iftekhar'],['12b05','12b06','12b07']],
+                'Mathematics':[['Mr. Hari Krishna','Mr. Javed Aslam'],['12b03','12b04','12b05','12b06','12b07']],
+                'PEd':[['Mr. Imran Khan','Mr. Aadil'],['12b01','12b02','12b03','12b04','12b05','12b06','12b07']],
+                'Computer':[['Mrs. Urooj Fatima','Mr. Qurban'],['12b05','12b06','12b07']],
+                'Ip':[['Mrs. Urooj Fatima','Mr. Qurban'],['12b01','12b02','12b03','12b04']],
+                'Urdu':[['Mr. Obaid Khan'],['12b01','12b02','12b03','12b04','12b05','12b06','12b07']],
+                'Arabic':[['Mr. Altaf Hussain'],['12b01','12b02','12b03','12b04','12b05','12b06','12b07']],
+                'Business':[['Mrs. Safa','Mrs. Shaniba','Mrs. Nasera'],['12b01','12b02','12b03','12b04']],
+                'Accounts':[['Mr. Akram','Mrs. Siddiqua Bano'],['12b03','12b04']],
+                'Economics':[['Mr. Sainuddeen','Mr. Feroz Kidwai'],['12b03','12b04']],
+                'Marketing':[['Mrs. Safa','Mrs. Nasera','Mrs. Siddiqua Bano'],['12b01','12b02','12b03','12b04']]}
+        
+    for subject in strs:
+        cur.execute("select subid from subjects where subname = %s",(subject,))
+        subid=cur.fetchone()[0]
+        classes=strs[subject][1]
+        teachers=strs[subject][0]
+        tids=[]
+        for teacher in teachers:
+            cur.execute("select tid from teachers where tname = %s",(teacher,))
+            temp=cur.fetchone()[0]
+            tids.append(temp)
+        nc=len(classes)
+        nt=len(teachers)
+        x=nc//nt
+        r=nc%nt
+        count=0
+        random.shuffle(tids)
+        for tid in tids:
+            for _ in range(x):
+                cls=classes[count]
+                cur.execute("insert into classsubjects values (%s,%s,%s)",(cls,subid,tid))
+                count+=1
+        for _ in range(r):
+            cls=classes[count]
+            tid=random.choice(tids)
+            cur.execute("insert into classsubjects values (%s,%s,%s)",(cls,subid,tid))
+            count+=1
+
+    db.commit()
+#setupclasssubjects() use this when creating sample for this table
 
 db.close()

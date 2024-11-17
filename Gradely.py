@@ -88,11 +88,156 @@ def dbconnect(cursor,database):
             #I will add the required code later
             pass
 
-def hashpw(inputpw):
-    salt = bcrypt.gensalt()
-    hashed = bcrypt.hashpw(inputpw.encode(), salt)
-    return hashed
+def home():
+    typewrite("Welcome to Gradely!\nPlease choose how you would like to login ('0' to exit):\n1. Admin\n2. Teacher\n> ",color='bold cyan',end='')
 
+    usertype=valid_input(["0","1","2"],warning="Please choose from the given options only! (1/2)")
+
+    while True:
+
+        if usertype=='0':
+            typewrite("Thanks for using our program!",color='bold green',end='')
+            exit()
+
+        if usertype=='1':
+
+            typewrite("Please enter your username: ",end='') #CANT BE EMPTY
+            inputun=input()
+            typewrite("Please enter your password: ",end='')
+            inputpw=pwinput(prompt='')
+
+            #simulating checking password
+            spinner(list=['','',''],start='Verifying credentials...',spincolor='yellow',startcolor='bold yellow')
+
+            cur.execute("SELECT * FROM ADM")
+            creds=cur.fetchall()
+            for cred in creds:
+                if cred[0]==inputun:
+                    storedpw=cred[1]
+                    if bcrypt.checkpw(inputpw.encode(), storedpw):
+                        typewrite("Credentials verified.",color='bold green')
+                        progress_bar(start='Logging in...',startcolor='bold green')
+                        admin()
+                        break
+                    else:
+                        typewrite("Incorrect username or password! Please try again!",color='bold red')
+
+        else:
+
+            typewrite("Please enter your ID: ",end='') #CANT BE EMPTY
+            inputid=input()
+            typewrite("Please enter your password: ",end='')
+            inputpw=pwinput(prompt='')
+
+            #simulating checking password
+            spinner(list=['','',''],start='Verifying credentials...',spincolor='yellow',startcolor='bold yellow')
+
+            cur.execute("SELECT * FROM CTS")
+            creds=cur.fetchall()
+            for cred in creds:
+                if cred[0]==int(inputid):
+                    storedpw=cred[2]
+                    if bcrypt.checkpw(inputpw.encode(), storedpw):
+                        typewrite("Credentials verified.",color='bold green')
+                        progress_bar(start='Logging in...',startcolor='bold green')
+                        cur.execute("SELECT DISTINCT CLASS FROM CTS,CLASS WHERE CLASS.CTID=%s",(cred[0],))
+                        cls=cur.fetchone()[0]
+                        ct(cred[1],cls)
+                        break
+                    else:
+                        typewrite("Incorrect ID or password! Please try again!",color='bold red')
+
+
+def admin():
+    def report_card():
+        pass
+    def stream_toplist():
+        pass
+    def subject_toplist():
+        pass
+    def overall_toplist():
+        pass
+    def teacher_report():
+        pass
+def ct(tname,cls):
+    while True:
+        typewrite(f"Welcome, {tname}!\nPlease choose from the given options:\n1. Update Marks\n2. Logout\n3. Exit\n> ",color='bold cyan',end='')
+        mainchoice=valid_input(['1','2','3'])
+        if mainchoice=='1':
+            typewrite("Please choose how you would like to update marks (enter '0' for home):\n1. Single Student\n2. Bulk Update\n> ",color='bold cyan',end='')
+            choice=valid_input(['1','2'])
+            if choice=='1':
+                while True:
+                    typewrite("Please enter the student's Grno. (enter '0' for home):\n> ",color='bold cyan',end='')
+                    grno=int(input())
+                    if grno=='0':
+                        break
+                    else:
+                        cur.execute("SELECT * FROM STUDENTS WHERE GRNO=%s AND CLASS=%s",(grno,cls))
+                        stddata=cur.fetchone()
+                        if stddata==None:
+                            typewrite("Data not found! Please try again!:\n> ",color='bold cyan',end='')
+                        else:
+                            cur.execute("SELECT SUBJECTS.SUBNAME FROM STUDENTSUBJECTS,SUBJECTS WHERE GRNO=%s AND STUDENTSUBJECTS.SUBID=SUBJECTS.SUBID;",(grno,))
+                            subjects=cur.fetchall()
+                            cur.execute("SELECT DISTINCT EXAM FROM EXAMS")
+                            exams=cur.fetchall()
+                            s1,s2,s3,s4,s5=subjects[0][0],subjects[1][0],subjects[2][0],subjects[3][0],subjects[4][0]
+                            ae,hy,ut1,ut2=exams[0][0],exams[1][0],exams[2][0],exams[3][0]
+                            name=stddata[1]
+                            father=stddata[2]
+                            mother=stddata[3]
+                            dob=stddata[4]
+                            cl=stddata[5]
+                            roll=stddata[6]
+                            typewrite(f"Please choose the exam (enter '0' for home):\n1. {ut1}\n2. {hy}\n3. {ut2}\n4. {ae}\n> ",color='bold cyan',end='')
+                            
+                            chosenexam=valid_input(['0','1','2','3','4'])
+                            if chosenexam=='0':
+                                break
+                            else:
+                                if chosenexam=='1':
+                                    chosenexam=ut1
+                                if chosenexam=='2':
+                                    chosenexam=hy
+                                if chosenexam=='3':
+                                    chosenexam=ut2
+                                if chosenexam=='4':
+                                    chosenexam=ae
+                                typewrite(f"Please choose the subject (enter '0' for home):\n1. {s1}\n2. {s2}\n3. {s3}\n4. {s4}\n5. {s5}\n> ",color='bold cyan',end='')
+                                chosensub=valid_input(['0','1','2','3','4','5'])
+                            if chosensub=='0':
+                                break
+                            else:
+                                if chosensub=='1':
+                                    chosensub=s1
+                                if chosensub=='2':
+                                    chosensub=s2
+                                if chosensub=='3':
+                                    chosensub=s3
+                                if chosensub=='4':
+                                    chosensub=s4
+                                if chosensub=='5':
+                                    chosensub=s5
+                                
+                                typewrite("Please enter new marks (enter '0' for home):\n> ",color='bold cyan',end='')
+                                newmarks=int(input())
+                                if newmarks==0:
+                                    break
+                                else:
+                                    print(newmarks,grno,chosenexam,chosensub)
+                                    cur.execute("UPDATE MARKS SET MARKS = %s WHERE GRNO = %s AND SUBID = (SELECT SUBID FROM SUBJECTS WHERE SUBNAME = %s) AND EXAM = %s",(newmarks,grno,chosensub,chosenexam))
+                                    db.commit()
+                                    typewrite("Marks updated successfully... Returning to home...\n> ",color='bold green',end='')
+                                    break
+
+            else:
+                pass
+        elif mainchoice=='2':
+            return
+        else:
+            typewrite("Thanks for using our program!",color='bold green',end='')
+            exit()
 #INTRO
 
 #asking for sql password and username
@@ -129,32 +274,6 @@ while True:
         
 progress_bar()
 
-typewrite("Welcome to Gradely!\nPlease choose how you would like to login:\n1. Admin\n2. Teacher\n> ",color='bold cyan',end='')
+home()
 
-usertype=valid_input(["1","2"],warning="Please choose from the given options only! (1/2)")
-
-while True:
-    typewrite("Please enter your username: ",end='') #CANT BE EMPTY
-    inputun=input()
-    typewrite("Please enter your password: ",end='')
-    inputpw=pwinput(prompt='')
-
-    #simulating checking password
-    spinner(list=['','',''],start='Verifying credentials...',spincolor='yellow',startcolor='bold yellow')
-    pwcheck=False
-    if usertype=='1':
-        cur.execute("select * from adm")
-        creds=cur.fetchall()
-        for cred in creds:
-            if cred[0]==inputun:
-                storedpw=cred[1]
-                if bcrypt.checkpw(inputpw.encode(), storedpw):
-                    pwcheck=True
-                    break
-        if pwcheck:
-                typewrite("Credentials verified.",color='bold green')
-                progress_bar(start='Logging in...',startcolor='bold green')
-                break
-        else:
-                typewrite("Incorrect username or password! Please try again!",color='bold red')
-
+db.close()

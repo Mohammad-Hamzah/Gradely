@@ -17,7 +17,7 @@ def setupadm():
         data = (i, hashed)
         cur.execute(query, data)
     db.commit()
-#setupadm() use this when creating sample for this table
+#setupadm() #use this when creating sample for this table
 
 def setupsubjects():
     subco= {
@@ -40,7 +40,7 @@ def setupsubjects():
     for subject in subco:
         cur.execute(f'insert into subjects(subid,subname) values ("{subco[subject]}","{subject}")')
         db.commit()
-#setupsubjects() use this when creating sample for this table
+#setupsubjects() #use this when creating sample for this table
 
 def setupexams():
     sub={'English':80,'Physics':70,'Chemistry':70,'Biology':70,'Mathematics':80,'Marketing':80,'Accounts':80,'Business':80,'Economics':80,'PEd':70,'Computer':70,'IP':70,'Arabic':80,'Urdu':80}
@@ -62,7 +62,7 @@ def setupexams():
                 cur.execute(f'insert into exams values{temp}')
             
     db.commit()
-#setupexams() use this when creating sample for this table
+#setupexams() #use this when creating sample for this table
 
 def setupteachers():
     strs={'English':['Mrs. Farhana Khan','Mrs. Amena Khan','Mr. Alavi Said'],'Physics':['Mr. Mariadas Thomas'],'Chemistry':['Mrs. Sheenu Rajesh','Mr. Biju Anthony'],
@@ -94,7 +94,7 @@ def setupteachers():
 
     # Commit changes to the database
     db.commit()
-#setupteachers() use this when creating sample for this table
+#setupteachers() #use this when creating sample for this table
 
 def setupteachersubjects():
     strs={'English':['Mrs. Farhana Khan','Mrs. Amena Khan','Mr. Alavi Said'],'Physics':['Mr. Mariadas Thomas'],'Chemistry':['Mrs. Sheenu Rajesh','Mr. Biju Anthony'],
@@ -125,7 +125,7 @@ def setupteachersubjects():
             
             cur.execute("INSERT INTO TeacherSubjects (TID, SubID) VALUES (%s, %s)", (tid, subid))
     db.commit()
-#setupteachersubjects() use this when creating sample for this table
+#setupteachersubjects() #use this when creating sample for this table
 
 def setupcts():
     # CREATE TABLE CTs(
@@ -140,10 +140,7 @@ def setupcts():
         teacher_name = classes[cl]
 
         # Generate a password and hash it
-        if len(teacher_name.split()) > 1:
-            password = teacher_name.split()[1] + 'iisj'
-        else:
-            password = teacher_name + 'iisj'  # Handle case where name has a single word
+        password = teacher_name.split()[1] + 'iisj'
         salt = bcrypt.gensalt()
         hashed = bcrypt.hashpw(password.encode(), salt)
 
@@ -159,7 +156,7 @@ def setupcts():
         # Insert into CTs table
         cur.execute("INSERT INTO CTs (CTID, CTName, Hashed_PW) VALUES (%s, %s, %s)", (tid, teacher_name, hashed))
     db.commit()
-#setupcts() use this when creating sample for this table
+#setupcts() #use this when creating sample for this table
 
 def setupcls():
     # CREATE TABLE Class(
@@ -184,7 +181,7 @@ def setupcls():
         cur.execute("insert into class values (%s,%s,%s)", (cls,ctid,cstream))
 
     db.commit()
-#setupcls() use this when creating sample for this table
+#setupcls() #use this when creating sample for this table
 
 def setupstudents():
     # CREATE TABLE Students(
@@ -285,7 +282,7 @@ def setupstudents():
             cur.execute("insert into students values(%s,%s,%s,%s,%s,%s,%s)",tup)
             
     db.commit()
-#setupstudents() use this when creating sample for this table
+#setupstudents() #use this when creating sample for this table
 
 def setupstudentsubjects():
     # CREATE TABLE StudentSubjects(
@@ -338,7 +335,7 @@ def setupstudentsubjects():
     # Commit the transaction
     db.commit()
     #select subjects.subid,subjects.subname from subjects join studentsubjects on subjects.subid=studentsubjects.subid where grno=49869;
-#setupstudentsubjects() use this when creating sample for this table
+#setupstudentsubjects() #use this when creating sample for this table
 
 def setupmarks():
     # CREATE TABLE Marks(
@@ -390,7 +387,7 @@ def setupmarks():
                 )
 
     db.commit()
-#setupmarks() use this when creating sample for this table
+#setupmarks() #use this when creating sample for this table
 
 def setupclasssubjects():
     # CREATE TABLE ClassSubjects(
@@ -446,6 +443,6 @@ def setupclasssubjects():
             count+=1
 
     db.commit()
-#setupclasssubjects() use this when creating sample for this table
+#setupclasssubjects() #use this when creating sample for this table
 
 db.close()

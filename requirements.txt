@@ -1,3 +1,4 @@
 rich
 pwinput
 mysql.connector
+bcrypt

@@ -11,10 +11,10 @@
 	`mysql -u root -p gradely < gradely_dump.sql`
 	
 * You can use the script `sampledata.py` to create tables with random data.
-* If issues found, please raise them through the "Issues" feature of GitHub.
-* For ideas, please utilise the "Discussions" feature of GitHub.
+* If issues found, please raise them in the "Issues" tab of this project.
+* Suggest ideas, if any, in the "Discussions" tab of this project.
 
 
 ## Special Thanks:
 1. [Zaman](https://github.com/infrared-o8/) for ideas and debugging.
-2. Atif Malik for collecting the data for the project.
+2. Atif Malik for helping in collecting the data for the project.

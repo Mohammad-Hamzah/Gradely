@@ -1,18 +1,27 @@
-import mysql.connector
+import mysql.connector as sql
 from rich.traceback import install #this will show errors beautifully
 from rich import print as rprint
 from rich.table import Table #this will display tables beautifully
 from rich.console import Console
 from rich.panel import Panel
 from rich import box
-from rich.progress import Progress, TextColumn, BarColumn, SpinnerColumn #helps to create progress bars and spinners
+from rich.progress import Progress, TextColumn, BarColumn #helps to create progress bars and spinners
 import time #this module is for time related things
 from pwinput import pwinput #this module will mask the password being entered as asterisk(*) on the screen
-import mysql.connector as sql
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import A4
+from reportlab.lib import colors
+from reportlab.lib.units import inch
+from reportlab.platypus import Table, TableStyle, Image ,Frame
 import bcrypt #for passwords
+from PIL import Image
+import os
+
+
 
 install() #calling the install function will overwrite the current error statement procedure and will show errors beautifully
 console=Console()
+
 #colored typewriter function
 def typewrite(string,sec=0.01,color='bold cyan',end='\n'):
     for i in string:
@@ -84,85 +93,646 @@ def dbconnect(cursor,database):
     for db in dbs:
         if 'gradely' in db:
             database.database='gradely'
-        else:
-            #I will add the required code later
-            pass
+            return True
+        
+    typewrite("Database not found! Exiting program...",color='bold red')
+    return False
 
 def home():
-    typewrite("Welcome to Gradely!\nPlease choose how you would like to login ('0' to exit):\n1. Admin\n2. Teacher\n> ",color='bold cyan',end='')
-
-    usertype=valid_input(["0","1","2"],warning="Please choose from the given options only! (1/2)")
-
     while True:
+        typewrite("Welcome to Gradely!\nPlease choose how you would like to login ('0' to exit):\n1. Admin\n2. Teacher\n> ",color='bold cyan',end='')
 
-        if usertype=='0':
-            typewrite("Thanks for using our program!",color='bold green',end='')
-            exit()
+        usertype=valid_input(["0","1","2"],warning="Please choose from the given options only! (1/2)")
 
-        if usertype=='1':
+        while True:
 
-            typewrite("Please enter your username:\n> ",end='') #CANT BE EMPTY
-            inputun=input()
-            typewrite("Please enter your password:\n> ",end='')
-            inputpw=pwinput(prompt='')
+            if usertype=='0':
+                typewrite("Thanks for using our program!",color='bold green',end='')
+                exit()
 
-            #simulating checking password
-            spinner(list=['','',''],start='Verifying credentials...',spincolor='yellow',startcolor='bold yellow')
+            if usertype=='1':
 
-            cur.execute("SELECT * FROM ADM")
-            creds=cur.fetchall()
-            for cred in creds:
-                if cred[0]==inputun:
-                    storedpw=cred[1]
-                    if bcrypt.checkpw(inputpw.encode(), storedpw):
-                        typewrite("Credentials verified.",color='bold green')
-                        progress_bar(start='Logging in...',startcolor='bold green')
-                        admin()
-                        break
-                    else:
-                        typewrite("Incorrect username or password! Please try again!",color='bold red')
+                typewrite("Please enter your username: ('0' for back)\n> ",end='') #CANT BE EMPTY
+                inputun=input()
+                if inputun=='0':
+                    break
 
-        else:
+                typewrite("Please enter your password:\n> ",end='')
+                inputpw=pwinput(prompt='')
 
-            typewrite("Please enter your ID:\n> ",end='') #CANT BE EMPTY
-            inputid=input()
-            typewrite("Please enter your password:\n> ",end='')
-            inputpw=pwinput(prompt='')
+                #simulating checking password
+                spinner(list=['','',''],start='Verifying credentials...',spincolor='yellow',startcolor='bold yellow')
 
-            #simulating checking password
-            spinner(list=['','',''],start='Verifying credentials...',spincolor='yellow',startcolor='bold yellow')
+                cur.execute("SELECT * FROM ADM")
+                creds=cur.fetchall()
+                for cred in creds:
+                    if cred[0]==inputun:
+                        storedpw=cred[1]
+                        if bcrypt.checkpw(inputpw.encode(), storedpw):
+                            typewrite("Credentials verified.",color='bold green')
+                            progress_bar(start='Logging in...',startcolor='bold green')
+                            admin(cred[0])
+                            break
+                        else:
+                            typewrite("Incorrect username or password! Please try again!",color='bold red')
 
-            cur.execute("SELECT * FROM CTS")
-            creds=cur.fetchall()
-            for cred in creds:
-                if cred[0]==int(inputid):
-                    storedpw=cred[2]
-                    if bcrypt.checkpw(inputpw.encode(), storedpw):
-                        typewrite("Credentials verified.",color='bold green')
-                        progress_bar(start='Logging in...',startcolor='bold green')
-                        cur.execute("SELECT DISTINCT CLASS FROM CTS,CLASS WHERE CLASS.CTID=%s",(cred[0],))
-                        cls=cur.fetchone()[0]
-                        ct(cred[1],cls)
-                        break
-                    else:
-                        typewrite("Incorrect ID or password! Please try again!",color='bold red')
+            else:
+
+                typewrite("Please enter your ID: ('0' for back)\n> ",end='') #CANT BE EMPTY
+                inputid=input()
+                if inputid=='0':
+                    break
+                typewrite("Please enter your password:\n> ",end='')
+                inputpw=pwinput(prompt='')
+
+                #simulating checking password
+                spinner(list=['','',''],start='Verifying credentials...',spincolor='yellow',startcolor='bold yellow')
+
+                cur.execute("SELECT * FROM CTS")
+                creds=cur.fetchall()
+                for cred in creds:
+                    if cred[0]==int(inputid):
+                        storedpw=cred[2]
+                        if bcrypt.checkpw(inputpw.encode(), storedpw):
+                            typewrite("Credentials verified.",color='bold green')
+                            progress_bar(start='Logging in...',startcolor='bold green')
+                            cur.execute("SELECT DISTINCT CLASS FROM CTS,CLASS WHERE CLASS.CTID=%s",(cred[0],))
+                            cls=cur.fetchone()[0]
+                            ct(cred[1],cls)
+                            break
+                        else:
+                            typewrite("Incorrect ID or password! Please try again!",color='bold red')
 
 def hash_pw(password):
     salt = bcrypt.gensalt()
     hashed = bcrypt.hashpw(password.encode(), salt)
     return hashed
 
-def admin():
-    def report_card():
-        pass
-    def stream_toplist():
-        pass
-    def subject_toplist():
-        pass
-    def overall_toplist():
-        pass
-    def teacher_report():
-        pass
+def info(grno):
+    
+    cur.execute("SELECT * FROM STUDENTS WHERE GRNO=%s",(grno,))
+    stddata=cur.fetchall()
+    name,father,mother,dob,cl,roll=stddata[0][1],stddata[0][2],stddata[0][3],stddata[0][4],stddata[0][5],stddata[0][6]
+    cur.execute("SELECT SUBNAME FROM SUBJECTS,STUDENTSUBJECTS WHERE SUBJECTS.SUBID=STUDENTSUBJECTS.SUBID AND GRNO=%s",(grno,))
+    subdata=cur.fetchall()
+    s1,s2,s3,s4,s5=subdata[0][0],subdata[1][0],subdata[2][0],subdata[3][0],subdata[4][0]
+    maxs1,maxs2,maxs3,maxs4,maxs5,MAXS1,MAXS2,MAXS3,MAXS4,MAXS5=0,0,0,0,0,0,0,0,0,0
+
+    ms1ut1,ms1hy,ms1ut2,ms1ae=0,0,0,0
+    ms2ut1,ms2hy,ms2ut2,ms2ae=0,0,0,0
+    ms3ut1,ms3hy,ms3ut2,ms3ae=0,0,0,0
+    ms4ut1,ms4hy,ms4ut2,ms4ae=0,0,0,0
+    ms5ut1,ms5hy,ms5ut2,ms5ae=0,0,0,0
+
+
+    count=0
+    for subject in subdata:
+        cur.execute("SELECT DISTINCT MAXMARKS FROM EXAMS WHERE SUBID=(SELECT SUBID FROM SUBJECTS WHERE SUBNAME=%s) ORDER BY MAXMARKS",(subject[0],))
+        maxmarks=cur.fetchall()
+        cur.execute("SELECT EXAM,MARKS FROM MARKS WHERE GRNO=%s  AND SUBID=(SELECT SUBID FROM SUBJECTS WHERE SUBNAME=%s) ORDER BY EXAM",(grno,subject[0]))
+        obtmarks=cur.fetchall()
+
+        if count==0:
+            maxs1,MAXS1=maxmarks[0][0],maxmarks[1][0]
+            
+        if count==1:
+            maxs2,MAXS2=maxmarks[0][0],maxmarks[1][0]
+            
+        if count==2:
+            maxs3,MAXS3=maxmarks[0][0],maxmarks[1][0]
+            
+        if count==3:
+            maxs4,MAXS4=maxmarks[0][0],maxmarks[1][0]
+            
+        if count==4:
+            maxs5,MAXS5=maxmarks[0][0],maxmarks[1][0]
+
+
+        if obtmarks !=None:
+            
+            if count==0:
+                ms1ae,ms1hy,ms1ut1,ms1ut2=obtmarks[0][1],obtmarks[1][1],obtmarks[2][1],obtmarks[3][1]
+                count+=1
+            
+            elif count==1:
+                ms2ae,ms2hy,ms2ut1,ms2ut2=obtmarks[0][1],obtmarks[1][1],obtmarks[2][1],obtmarks[3][1]
+                count+=1
+
+            elif count==2:
+                ms3ae,ms3hy,ms3ut1,ms3ut2=obtmarks[0][1],obtmarks[1][1],obtmarks[2][1],obtmarks[3][1]
+                count+=1
+            elif count==3:
+                ms4ae,ms4hy,ms4ut1,ms4ut2=obtmarks[0][1],obtmarks[1][1],obtmarks[2][1],obtmarks[3][1]
+                count+=1
+            elif count==4:
+                ms5ae,ms5hy,ms5ut1,ms5ut2=obtmarks[0][1],obtmarks[1][1],obtmarks[2][1],obtmarks[3][1]
+                
+                
+    return [name,father,mother,dob,cl,roll],[s1,s2,s3,s4,s5],[maxs1,maxs2,maxs3,maxs4,maxs5,MAXS1,MAXS2,MAXS3,MAXS4,MAXS5],[ms1ut1,ms1hy,ms1ut2,ms1ae],[ms2ut1,ms2hy,ms2ut2,ms2ae],[ms3ut1,ms3hy,ms3ut2,ms3ae],[ms4ut1,ms4hy,ms4ut2,ms4ae],[ms5ut1,ms5hy,ms5ut2,ms5ae]
+
+
+
+
+
+def admin(adm):
+    def  new_acadyear():
+        tables = ["Students","Marks","Subjects","Exams","Teachers","TeacherSubjects","CTs","Class","ClassSubjects","StudentSubjects"]
+
+        # Transfer data to archive tables
+        try:
+            for table in tables:
+                archive_table = f"{table}archive"
+                                
+                # Insert data with academic year into archive table
+                cur.execute(f"INSERT INTO {archive_table} SELECT *, '{acadyear}' FROM {table}")
+                
+                # Clear the original table
+                cur.execute(f"TRUNCATE TABLE {table}")
+                typewrite(f"Archived and cleared data for {table}",color='bold green')
+            
+            db.commit()
+            typewrite("Archiving process completed successfully!... Returning home...",color='bold green')
+            return
+
+        except sql.Error as e:
+            typewrite(f"Error during archiving: {e}... Operation Terminated, Returning home...",color='bold red')
+            db.rollback()
+            return
+
+    def minor_report(grno,exam,folder=''):
+
+        if folder!='':
+            directory_name = f'results/{folder.rstrip('/')}'
+        try:
+            os.makedirs(directory_name,exist_ok=True)
+        except:
+            typewrite("Some Error Occured!",color='bold red')
+
+
+        stddata,subdata,maxmarks,ms1,ms2,ms3,ms4,ms5=info(grno)
+        name,father,mother,dob,cl,roll=stddata[0],stddata[1],stddata[2],stddata[3],stddata[4],stddata[5]
+        s1,s2,s3,s4,s5=subdata[0],subdata[1],subdata[2],subdata[3],subdata[4]
+        maxs1,maxs2,maxs3,maxs4,maxs5=maxmarks[0],maxmarks[1],maxmarks[2],maxmarks[3],maxmarks[4]
+        if exam==1:
+            exam='Unit Test I'
+            examshort='UT1'
+            ms1ut=ms1[0]
+            ms2ut=ms2[0]
+            ms3ut=ms3[0]
+            ms4ut=ms4[0]
+            ms5ut=ms5[0]
+        elif exam==2:
+            exam='Unit Test II'
+            examshort='UT2'
+            ms1ut=ms1[2]
+            ms2ut=ms2[2]
+            ms3ut=ms3[2]
+            ms4ut=ms4[2]
+            ms5ut=ms5[2]
+
+
+        # Set up the PDF document and canvas
+        scale_factor = 2  # Scale up by 2x for higher resolution
+        a4_width, a4_height = A4
+        high_res_width = int(a4_width * scale_factor)
+        high_res_height = int(a4_height * scale_factor)
+        
+        c = canvas.Canvas(f"results/{folder}{grno}_{examshort}.pdf", pagesize=(high_res_width, high_res_height))
+        # width, height = A4  # Get dimensions of the A4 page
+        with Image.open(r"assets\header_image.png") as img1:
+            image_width, image_height = img1.size  # Get the width and height of the image
+
+        c.drawImage(r"assets\header_image.png", x=0, y=high_res_height - image_height, width=image_width, height=image_height)
+
+
+        with Image.open(r"assets\principal_stamp.png") as img2:
+            image_width, image_height = img2.size  # Get the width and height of the image
+
+        c.drawImage(r"assets\principal_stamp.png", x=852, y=242, width=image_width, height=image_height)
+
+
+        with Image.open(r"assets\school_stamp.png") as img3:
+            image_width, image_height = img3.size  # Get the width and height of the image
+
+        c.drawImage(r"assets\school_stamp.png", x=468, y=164, width=image_width, height=image_height)
+
+
+        c.setFont("Helvetica-Bold", 37)  # Font and size
+        c.drawString(390, 1430, f"Academic Year {acadyear}")  # x, y, and text
+        c.drawString(331, 1390, "Performance Report for Class XII")  # x, y, and text
+
+        c.setFont("Helvetica-Bold", 22)  # Font and size
+        c.drawString(53, 1280, f"GR No.: {grno}")  # x, y, and text
+        c.drawString(483, 1280, f"Class and Section: {cl}")  # x, y, and text
+        c.drawString(913, 1280, f"Roll no.: {roll}")  # x, y, and text
+        c.drawString(53, 1231, f"Student's Name: {name}")  # x, y, and text
+        c.drawString(483, 1231, f"DOB: {dob}")  # x, y, and text
+        c.drawString(53, 1183, f"Father's Name: {father}")  # x, y, and text
+        c.drawString(483, 1183, f"Mother's Name: {mother}")  # x, y, and text
+
+        c.setFont("Times-Bold", 27)  # Font and size
+        c.drawString(171, 248, "Class Teacher")  # x, y, and text
+
+        data=[
+            ['Subject',f'{exam}',''],
+            ['','Max.','Obt.'],
+            [s1,maxs1,ms1ut],
+            [s2,maxs2,ms2ut],
+            [s3,maxs3,ms3ut],
+            [s4,maxs4,ms4ut],
+            [s5,maxs5,ms5ut]
+        ]
+
+        row_heights = [70] + [50] * len(data[1:])  # Set specific row heights
+        table_width = 1100  # Fixed total width in points
+        num_columns = len(data[0])  # Number of columns
+        column_width = table_width / num_columns  # Calculate width per column
+
+
+        table = Table(data, colWidths=[column_width] * num_columns,rowHeights=row_heights)  # Column widths
+
+        style = TableStyle([
+
+            ('SPAN', (0, 0), (0, 1)),
+            ('SPAN', (1, 0), (2, 0)), 
+            
+            # Center align all text
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ('FONTNAME', (0, 0), (-1, -1), 'Helvetica-Bold'),  # Set bold font
+            ('FONTSIZE', (0, 0), (-1, -1), 23),  # Increased font size
+            # Add grid lines
+            ('GRID', (0, 0), (-1, -1), 1, colors.black),
+            
+            # Padding for better readability
+            ('LEFTPADDING', (0, 0), (-1, -1), 10),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 10),
+        ])
+        table.setStyle(style)
+
+        frame = Frame(53, 438, 1086, 700)  # x, y, width, height
+        frame.addFromList([table], c)
+
+        c.showPage()
+
+        c.save()
+
+
+    def hy_report(grno,folder=''):
+
+
+        if folder!='':
+            directory_name = f'results/{folder.rstrip('/')}'
+        try:
+            os.makedirs(directory_name,exist_ok=True)
+        except:
+            typewrite("Some Error Occured!",color='bold red')
+
+
+        stddata,subdata,maxmarks,ms1,ms2,ms3,ms4,ms5=info(grno)
+        name,father,mother,dob,cl,roll=stddata[0],stddata[1],stddata[2],stddata[3],stddata[4],stddata[5]
+        s1,s2,s3,s4,s5=subdata[0],subdata[1],subdata[2],subdata[3],subdata[4]
+        maxs1,maxs2,maxs3,maxs4,maxs5,MAXS1,MAXS2,MAXS3,MAXS4,MAXS5=maxmarks[0],maxmarks[1],maxmarks[2],maxmarks[3],maxmarks[4],maxmarks[5],maxmarks[6],maxmarks[7],maxmarks[8],maxmarks[9]
+        ms1ut1,ms1hy=ms1[0],ms1[1]
+        ms2ut1,ms2hy=ms2[0],ms2[1]
+        ms3ut1,ms3hy=ms3[0],ms3[1]
+        ms4ut1,ms4hy=ms4[0],ms4[1]
+        ms5ut1,ms5hy=ms5[0],ms5[1]
+
+        # Set up the PDF document and canvas
+        scale_factor = 2  # Scale up by 2x for higher resolution
+        a4_width, a4_height = A4
+        high_res_width = int(a4_width * scale_factor)
+        high_res_height = int(a4_height * scale_factor)
+        
+        c = canvas.Canvas(f"results/{folder}{grno}_HY.pdf", pagesize=(high_res_width, high_res_height))
+        # width, height = A4  # Get dimensions of the A4 page
+        with Image.open(r"assets\header_image.png") as img1:
+            image_width, image_height = img1.size  # Get the width and height of the image
+
+        c.drawImage(r"assets\header_image.png", x=0, y=high_res_height - image_height, width=image_width, height=image_height)
+
+
+        with Image.open(r"assets\principal_stamp.png") as img2:
+            image_width, image_height = img2.size  # Get the width and height of the image
+
+        c.drawImage(r"assets\principal_stamp.png", x=852, y=242, width=image_width, height=image_height)
+
+
+        with Image.open(r"assets\school_stamp.png") as img3:
+            image_width, image_height = img3.size  # Get the width and height of the image
+
+        c.drawImage(r"assets\school_stamp.png", x=468, y=164, width=image_width, height=image_height)
+
+
+        c.setFont("Helvetica-Bold", 37)  # Font and size
+        c.drawString(390, 1430, f"Academic Year {acadyear}")  # x, y, and text
+        c.drawString(331, 1390, "Performance Report for Class XII")  # x, y, and text
+
+        c.setFont("Helvetica-Bold", 22)  # Font and size
+        c.drawString(53, 1280, f"GR No.: {grno}")  # x, y, and text
+        c.drawString(483, 1280, f"Class and Section: {cl}")  # x, y, and text
+        c.drawString(913, 1280, f"Roll no.: {roll}")  # x, y, and text
+        c.drawString(53, 1231, f"Student's Name: {name}")  # x, y, and text
+        c.drawString(483, 1231, f"DOB: {dob}")  # x, y, and text
+        c.drawString(53, 1183, f"Father's Name: {father}")  # x, y, and text
+        c.drawString(483, 1183, f"Mother's Name: {mother}")  # x, y, and text
+
+        c.setFont("Times-Bold", 27)  # Font and size
+        c.drawString(171, 248, "Class Teacher")  # x, y, and text
+
+        data=[
+            ['Subject','Unit Test I','','Half Yearly Exam',''],
+            ['','Max.','Obt.','Max.','Obt.'],
+            [s1,maxs1,ms1ut1,MAXS1,ms1hy],
+            [s2,maxs2,ms2ut1,MAXS2,ms2hy],
+            [s3,maxs3,ms3ut1,MAXS3,ms3hy],
+            [s4,maxs4,ms4ut1,MAXS4,ms4hy],
+            [s5,maxs5,ms5ut1,MAXS5,ms5hy]
+        ]
+
+        row_heights = [70] + [50] * len(data[1:])  # Set specific row heights
+        table_width = 1100  # Fixed total width in points
+        num_columns = len(data[0])  # Number of columns
+        column_width = table_width / num_columns  # Calculate width per column
+
+
+        table = Table(data, colWidths=[column_width] * num_columns,rowHeights=row_heights)  # Column widths
+
+        style = TableStyle([
+
+            ('SPAN', (0, 0), (0, 1)),
+            ('SPAN', (1, 0), (2, 0)),  
+            ('SPAN', (3, 0), (4, 0)), 
+            
+            # Center align all text
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ('FONTNAME', (0, 0), (-1, -1), 'Helvetica-Bold'),  # Set bold font
+            ('FONTSIZE', (0, 0), (-1, -1), 23),  # Increased font size
+            # Add grid lines
+            ('GRID', (0, 0), (-1, -1), 1, colors.black),
+            
+            # Padding for better readability
+            ('LEFTPADDING', (0, 0), (-1, -1), 10),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 10),
+        ])
+        table.setStyle(style)
+
+        frame = Frame(53, 438, 1086, 700)  # x, y, width, height
+        frame.addFromList([table], c)
+
+        c.showPage()
+
+        c.save()
+
+
+
+    def ae_report(grno,folder=''):
+
+
+        if folder!='':
+            directory_name = f'results/{folder.rstrip('/')}'
+        try:
+            os.makedirs(directory_name,exist_ok=True)
+        except:
+            typewrite("Some Error Occured!",color='bold red')
+
+
+        stddata,subdata,maxmarks,ms1,ms2,ms3,ms4,ms5=info(grno)
+        name,father,mother,dob,cl,roll=stddata[0],stddata[1],stddata[2],stddata[3],stddata[4],stddata[5]
+        s1,s2,s3,s4,s5=subdata[0],subdata[1],subdata[2],subdata[3],subdata[4]
+        maxs1,maxs2,maxs3,maxs4,maxs5,MAXS1,MAXS2,MAXS3,MAXS4,MAXS5=maxmarks[0],maxmarks[1],maxmarks[2],maxmarks[3],maxmarks[4],maxmarks[5],maxmarks[6],maxmarks[7],maxmarks[8],maxmarks[9]
+        ms1ut1,ms1hy,ms1ut2,ms1ae=ms1[0],ms1[1],ms1[2],ms1[3]
+        ms2ut1,ms2hy,ms2ut2,ms2ae=ms2[0],ms2[1],ms2[2],ms2[3]
+        ms3ut1,ms3hy,ms3ut2,ms3ae=ms3[0],ms3[1],ms3[2],ms3[3]
+        ms4ut1,ms4hy,ms4ut2,ms4ae=ms4[0],ms4[1],ms4[2],ms4[3]
+        ms5ut1,ms5hy,ms5ut2,ms5ae=ms5[0],ms5[1],ms5[2],ms5[3]
+
+        # Set up the PDF document and canvas
+        scale_factor = 2  # Scale up by 2x for higher resolution
+        a4_width, a4_height = A4
+        high_res_width = int(a4_width * scale_factor)
+        high_res_height = int(a4_height * scale_factor)
+        
+        c = canvas.Canvas(f"results/{folder}{grno}_AE.pdf", pagesize=(high_res_width, high_res_height))
+        # width, height = A4  # Get dimensions of the A4 page
+        with Image.open(r"assets\header_image.png") as img1:
+            image_width, image_height = img1.size  # Get the width and height of the image
+
+        c.drawImage(r"assets\header_image.png", x=0, y=high_res_height - image_height, width=image_width, height=image_height)
+
+
+        with Image.open(r"assets\principal_stamp.png") as img2:
+            image_width, image_height = img2.size  # Get the width and height of the image
+
+        c.drawImage(r"assets\principal_stamp.png", x=852, y=242, width=image_width, height=image_height)
+
+
+        with Image.open(r"assets\school_stamp.png") as img3:
+            image_width, image_height = img3.size  # Get the width and height of the image
+
+        c.drawImage(r"assets\school_stamp.png", x=468, y=164, width=image_width, height=image_height)
+
+
+        c.setFont("Helvetica-Bold", 37)  # Font and size
+        c.drawString(390, 1430, f"Academic Year {acadyear}")  # x, y, and text
+        c.drawString(331, 1390, "Performance Report for Class XII")  # x, y, and text
+
+        c.setFont("Helvetica-Bold", 22)  # Font and size
+        c.drawString(53, 1280, f"GR No.: {grno}")  # x, y, and text
+        c.drawString(483, 1280, f"Class and Section: {cl}")  # x, y, and text
+        c.drawString(913, 1280, f"Roll no.: {roll}")  # x, y, and text
+        c.drawString(53, 1231, f"Student's Name: {name}")  # x, y, and text
+        c.drawString(483, 1231, f"DOB: {dob}")  # x, y, and text
+        c.drawString(53, 1183, f"Father's Name: {father}")  # x, y, and text
+        c.drawString(483, 1183, f"Mother's Name: {mother}")  # x, y, and text
+
+        c.setFont("Times-Bold", 27)  # Font and size
+        c.drawString(171, 248, "Class Teacher")  # x, y, and text
+
+        data=[
+            ['Subject','Unit Test I','','Half Yearly Exam','','Unit Test II','','Annual Exam',''],
+            ['','Max.','Obt.','Max.','Obt.','Max.','Obt.','Max.','Obt.'],
+            [s1,maxs1,ms1ut1,MAXS1,ms1hy,maxs1,ms1ut2,MAXS1,ms1ae],
+            [s2,maxs2,ms2ut1,MAXS2,ms2hy,maxs2,ms2ut2,MAXS2,ms2ae],
+            [s3,maxs3,ms3ut1,MAXS3,ms3hy,maxs3,ms3ut2,MAXS3,ms3ae],
+            [s4,maxs4,ms4ut1,MAXS4,ms4hy,maxs4,ms4ut2,MAXS4,ms4ae],
+            [s5,maxs5,ms5ut1,MAXS5,ms5hy,maxs5,ms5ut2,MAXS5,ms5ae]
+        ]
+
+        row_heights = [70] + [50] * len(data[1:])  # Set specific row heights
+        table = Table(data, colWidths=[200,110,110,110,110,110,110,110,110,110,110],rowHeights=row_heights)  # Column widths
+
+        style = TableStyle([
+
+            ('SPAN', (0, 0), (0, 1)),
+            ('SPAN', (1, 0), (2, 0)),
+            ('SPAN', (3, 0), (4, 0)), 
+            ('SPAN', (5, 0), (6, 0)),  
+            ('SPAN', (7, 0), (8, 0)), 
+            
+            # Center align all text
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ('FONTNAME', (0, 0), (-1, -1), 'Helvetica-Bold'),  # Set bold font
+            ('FONTSIZE', (0, 0), (-1, -1), 23),  # Increased font size
+            # Add grid lines
+            ('GRID', (0, 0), (-1, -1), 1, colors.black),
+            
+            # Padding for better readability
+            ('LEFTPADDING', (0, 0), (-1, -1), 10),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 10),
+        ])
+        table.setStyle(style)
+
+        frame = Frame(53, 438, 1086, 700)  # x, y, width, height
+        frame.addFromList([table], c)
+
+        c.showPage()
+
+        c.save()
+
+    #admin function content starts here
+    while True:
+        typewrite(f"Welcome back, {adm}!\nPlease choose from the given options:\n1. Generate Report Card\n2. Start new academic year\n3. Change Password\n4. Logout\n5. Exit\n> ",color='bold cyan',end='')
+        mainchoice=valid_input(['1','2','3','4','5'])
+        if mainchoice=='1':
+            typewrite("Please choose how you would like to generate report cards (enter '0' for home):\n1. Single Student\n2. Bulk Generation\n> ",color='bold cyan',end='')
+            choice=valid_input(['0','1','2'])
+            if choice=='1':
+                while True:
+                    typewrite("Please enter the student's Grno. (enter '0' for home):\n> ",color='bold cyan',end='')
+                    grno=int(input())
+                    if grno==0:
+                        break
+                    else:
+                        cur.execute("SELECT * FROM STUDENTS WHERE GRNO=%s",(grno,))
+                        stddata=cur.fetchone()
+                        if stddata==None:
+                            typewrite("Data not found! Please try again!:\n> ",color='bold red',end='')
+                        else:
+                            typewrite("Please choose the exam (enter '0' for home):\n1. Unit Test I\n2. Half Yearly Exam\n3. Unit Test II\n4. Annual Exam\n> ",color='bold cyan',end='')
+                            
+                            chosenexam=valid_input(['0','1','2','3','4'])
+                            if chosenexam=='0':
+                                break
+                            else:
+                                if chosenexam=='1':
+                                    minor_report(grno,'Unit Test I')
+                                    typewrite("Report generation started... Returning to home...",color='bold green')
+                                    break
+                                elif chosenexam=='2':
+                                    hy_report(grno)
+                                    typewrite("Report generation started... Returning to home...",color='bold green')
+                                    break
+                                elif chosenexam=='3':
+                                    minor_report(grno,'Unit Test II')
+                                    typewrite("Report generation started... Returning to home...",color='bold green')
+                                    break
+                                elif chosenexam=='4':
+                                    ae_report(grno)
+                                    typewrite("Report generation started... Returning to home...",color='bold green')
+                                    break
+
+            elif choice=='2':
+                
+                cur.execute("SELECT CLASS FROM CLASS ORDER BY CLASS")
+                cldata=cur.fetchall()
+                typewrite("Please chose the class ('0' for home):")
+                count=1
+                for cl in cldata:
+                    typewrite(f"{count}. {cl[0]}")   
+                    count+=1                     
+                typewrite('> ',end='')
+                clinput=int(input())
+                while clinput not in range(0,len(cldata)+1):
+                    typewrite("Please choose from the given options only!\n> ", color='bold yellow', end='')
+                    clinput=int(input())
+                
+                chosenclass=cldata[clinput-1][0]
+
+                typewrite("Please choose the exam (enter '0' for home):\n1. Unit Test I\n2. Half Yearly Exam\n3. Unit Test II\n4. Annual Exam\n> ",color='bold cyan',end='')
+                
+                chosenexam=valid_input(['0','1','2','3','4'])
+                if chosenexam=='0':
+                    break
+                else:
+                    cur.execute("SELECT GRNO FROM STUDENTS WHERE CLASS=%s",(chosenclass,))
+                    grnos=cur.fetchall()
+                    typewrite("Report generation started...",color='bold green')
+                    # Convert grnos (list of tuples) to list of values
+                    tasks = [grno[0] for grno in grnos]
+
+                    # Spinner to display progress
+                    with console.status(f"[yellow]Generating Reports...", spinner="dots", spinner_style="yellow") as status:
+                        for grno in tasks:
+                            # Simulate report generation
+                            if chosenexam == '1':
+                                minor_report(grno, 'Unit Test I', folder=f'{chosenclass}_UT1/')
+                            elif chosenexam == '2':
+                                hy_report(grno, folder=f'{chosenclass}_HY/')
+                            elif chosenexam == '3':
+                                minor_report(grno, 'Unit Test II', folder=f'{chosenclass}_UT2/')
+                            elif chosenexam == '4':
+                                ae_report(grno, folder=f'{chosenclass}_AE/')
+                            
+                            # Log progress
+                            console.log(f"[green]Report for GRNo {grno} generated...[/]")
+
+                    typewrite("Successfully generated all reports. Returning home...", color="bold green")
+
+        if mainchoice=='2':
+            typewrite("ARE YOU SURE ABOUT THAT? IF YOU PROCEED YOU WILL BE SOLELY REPONSIBLE FOR THIS! (Y/N)",color='bold red')
+            admchoice=valid_input['Y','y','N','n']
+            if admchoice.lower()=='y':
+                flag=False
+                while not flag:
+                    typewrite("Enter your password ('0' for home):\n> ",color='bold yellow',end='')
+                    p1=pwinput(prompt='')
+                    if p1=='0':
+                        break
+                    typewrite("Enter your password once again ('0' for home):\n> ",color='bold yellow',end='')
+                    p2=pwinput(prompt='')
+                    if p2=='0':
+                        break
+                    if p1==p2:
+                        new_acadyear()
+                        flag=True
+                    else:
+                        typewrite("Passwords don't match. Please try again...",color='bold red')
+
+            elif admchoice.lower()=='n':
+                typewrite("Returning Home...",color='bold yellow')
+
+
+        if mainchoice=='3':
+            flag=False
+            while not flag:
+                typewrite("Enter new password ('0' for home):\n> ",color='bold yellow',end='')
+                p1=pwinput(prompt='')
+                if p1=='0':
+                    break
+                typewrite("Enter new password once again ('0' for home):\n> ",color='bold yellow',end='')
+                p2=pwinput(prompt='')
+                if p2=='0':
+                    break
+                if p1==p2:
+                    hashed_pw=hash_pw(p1)
+                    cur.execute("UPDATE ADM SET HASHED_PW=%s WHERE USERNAME=%s",(hashed_pw,adm))
+                    db.commit()
+                    typewrite("Password updated successfully! Returning to home...",color='bold green')
+                    flag=True
+                else:
+                    typewrite("Passwords don't match. Please try again...",color='bold red')
+        if mainchoice=='4':
+            return
+        if mainchoice=='5':
+            typewrite("Thanks for using our program!",color='bold green',end='')
+            exit()
+
+
+
 
 def ct(tname,cls):
     while True:
@@ -326,6 +896,7 @@ def ct(tname,cls):
                 if p1==p2:
                     hashed_pw=hash_pw(p1)
                     cur.execute("UPDATE CTS SET HASHED_PW=%s WHERE CTID=(SELECT TID FROM TEACHERS WHERE TNAME=%s)",(hashed_pw,tname))
+                    db.commit()
                     typewrite("Password updated successfully! Returning to home...",color='bold green')
                     flag=True
                 else:
@@ -336,15 +907,6 @@ def ct(tname,cls):
             typewrite("Thanks for using our program!",color='bold green',end='')
             exit()
 #INTRO
-
-db = mysql.connector.connect(
-    host='localhost',
-    user='root',
-    password='yoursql',
-    database='gradely'
-)
-cur=db.cursor()
-ct('Mrs. Sheenu Rajesh','12b05')
 
 #asking for sql password and username
 while True:
@@ -358,7 +920,7 @@ while True:
 
     try:
         # Try to connect to the database
-        db = mysql.connector.connect(
+        db = sql.connect(
             host='localhost',
             user=sqlu,
             passwd=sqlpw
@@ -366,20 +928,22 @@ while True:
 
         if db.is_connected():
             typewrite("Connected!",color='bold green')
+            progress_bar()
             cur=db.cursor()
-            dbconnect(cur,db)
+
+            isdb=dbconnect(cur,db)
             break
 
-    except mysql.connector.Error as e:
+    except sql.Error as e:
         if e.errno==1045:
             typewrite("Incorrect username or password... Please try again!",color='bold red')
         else:
             typewrite(f"Encountered {e}... Please try again!",color='bold red')
 
-
-        
-progress_bar()
-
-home()
+if isdb:
+    cur.execute("SELECT STARTYEAR,ENDYEAR FROM ACADYEAR")
+    yeardata=cur.fetchone()
+    acadyear=str(yeardata[0])+'-'+str(yeardata[1])
+    home()
 
 db.close()

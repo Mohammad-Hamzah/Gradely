@@ -1,4 +1,6 @@
-rich
-pwinput
-mysql.connector
-bcrypt
+mysql_connector_repackaged==0.3.1
+Pillow==11.0.0
+pwinput==1.0.3
+python_bcrypt==0.3.2
+reportlab==4.2.5
+rich==13.9.4

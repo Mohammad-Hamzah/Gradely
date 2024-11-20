@@ -8,7 +8,7 @@
 ## Instructions:
 *To clone this project run the following command through the command prompt (make sure you have git installed in your PC and your working directory is Desktop for better access):
 
-	`git clone https://github.com/Mohammad-Hamzah/Gradely`
+	git clone https://github.com/Mohammad-Hamzah/Gradely
 	
 * To install the database, execute the following command in the command prompt after cloning the project (make sure your working directory is 'Gradely'):
 

@@ -28,7 +28,7 @@
 * To log in as teachers, select TID from the table below.
 ```
 +-------+---------------------+
-| TID | TName |
+| TID | TName                 |
 +-------+---------------------+
 | 10715 | Mr. Aadil 	      |
 | 21023 | Mr. Sainuddeen      |

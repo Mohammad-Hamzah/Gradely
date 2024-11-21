@@ -247,26 +247,32 @@ def info(grno):
 
 def admin(adm,storedpw):
     def new_acadyear():
-        tables = ["Students", "Marks", "Subjects", "Exams", "Teachers", "TeacherSubjects", "Class", "ClassSubjects", "StudentSubjects"]
+        tables = ["Marks", "StudentSubjects", "ClassSubjects", "Students", "Subjects", "Exams", "Teachers", "TeacherSubjects", "Class"]
         
         try:
             # Add spinner for archiving process
-            with console.status("[yellow]Archiving data, please wait...[/]", spinner="dots") as status:
+            with console.status("[yellow]Archiving data, please wait...[/]", spinner="dots",) as status:
+                cur.execute("SET FOREIGN_KEY_CHECKS = 0")  # Disable foreign key checks
                 for table in tables:
                     archive_table = f"{table}archive"
                     
-                    # Insert data with academic year into archive table
+                    # Archive data with academic year
                     cur.execute(f"INSERT INTO {archive_table} SELECT *, '{acadyear}' FROM {table}")
-                    
-                    # Clear the original table
-                    cur.execute(f"DELETE FROM {table}")
-                    console.print(f"[green]Archived and cleared data for {table}[/]")
-                new_acadyearstart=int(yeardata[0])+1
-                new_acadyearend=int(yeardata[1])+1
-                cur.execute("DELETE FROM ACADYEAR")
-                cur.execute(F"INSERT INTO ACADYEAR VALUES({new_acadyearstart},{new_acadyearend})")
+                    cur.execute(f"TRUNCATE TABLE {table}")  # Clear the original table
+                    console.log(f"[green]Archived and cleared data for {table}[/]")
+
+                # Update academic year
+                new_acadyearstart = int(yeardata[0]) + 1
+                new_acadyearend = int(yeardata[1]) + 1
+                cur.execute("TRUNCATE TABLE ACADYEAR")
+                cur.execute("INSERT INTO ACADYEAR VALUES (%s, %s)", (new_acadyearstart, new_acadyearend))
+
+                cur.execute("SET FOREIGN_KEY_CHECKS = 1")  # Re-enable foreign key checks
                 db.commit()
-            typewrite("Archiving process completed successfully! Returning home...\n", color='bold green')
+            console.print("[green]Archiving process completed successfully! [/]")
+
+                
+            typewrite("Returning home...\n", color='bold green')
             return
 
         except sql.Error as e:
@@ -695,7 +701,7 @@ def admin(adm,storedpw):
                                 ae_report(grno, folder=f'{chosenclass}_AE/')
                             
                             # Log progress
-                            console.print(f"[green]Report for GRNo {grno} generated...[/]")
+                            console.log(f"[green]Report for GRNo {grno} generated...[/]")
 
                     typewrite("Successfully generated all reports. Returning home...", color="bold green")
 

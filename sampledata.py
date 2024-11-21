@@ -72,29 +72,42 @@ def setupteachers():
             'Biology':['Dr. Javeed Iftekhar'],'Mathematics':['Mr. Hari Krishna','Mr. Javed Aslam'],'PEd':['Mr. Imran Khan','Mr. Aadil'],'Computer':['Mrs. Urooj Fatima','Mr. Qurban'],
             'Ip':['Mrs. Urooj Fatima','Mr. Qurban'],'Urdu':['Mr. Obaid Khan'],'Arabic':['Mr. Altaf Hussain'],'Business':['Mrs. Safa','Mrs. Shaniba','Mrs. Nasera'],
             'Accounts':['Mr. Akram','Mrs. Siddiqua Bano'],'Economics':['Mr. Sainuddeen','Mr. Feroz Kidwai'],'Marketing':['Mrs. Safa','Mrs. Nasera','Mrs. Siddiqua Bano']}
-    used_tids = []
+    tids = {'Mr. Aadil':10715,
+            'Mr. Sainuddeen':21023,
+            'Mr. Javed Aslam':22762,
+            'Mrs. Safa':26248,
+            'Mrs. Siddiqua Bano':36257,
+            'Mrs. Amena Khan':36527,
+            'Dr. Javeed Iftekhar':36917,
+            'Mr. Mariadas Thomas':39308,
+            'Mrs. Urooj Fatima':39387,
+            'Mr. Obaid Khan':42901,
+            'Mr. Alavi Said':42997,
+            'Mrs. Sheenu Rajesh':45869,
+            'Mr. Qurban':46494,
+            'Mrs. Farhana Khan':47232,
+            'Mr. Feroz Kidwai':62091,
+            'Mr. Imran Khan':62198,
+            'Mr. Altaf Hussain':66176,
+            'Mr. Hari Krishna':74786,
+            'Mr. Akram':79870,
+            'Mrs. Shaniba':89435,
+            'Mr. Biju Anthony':93429,
+            'Mrs. Nasera':96631}
 
     # SQL query for inserting data
     insert_query = "INSERT INTO Teachers (TID, TName) VALUES (%s, %s)"
     l=[]
     for subject in strs:
         for teacher in strs[subject]:
-            if teacher in l:
-                continue
-            l.append(teacher)
-            # Generate a unique TID
-            while True:
-                tid = random.randint(10000, 99999)
-                if tid not in used_tids:
-                    used_tids.append(tid)
-                    break
-
+            tid=tids[teacher]
             # Execute the query
-            try:
-                cur.execute(insert_query, (tid, teacher))
-            except sql.connector.Error as err:
-                print(f"Error inserting {teacher}: {err}")
-
+            if tid not in l:
+                try:
+                    cur.execute(insert_query, (tid, teacher))
+                except sql.connector.Error as err:
+                    print(f"Error inserting {teacher}: {err}")
+            l.append(tid)
     # Commit changes to the database
     db.commit()
 #setupteachers() #use this when creating sample for this table
@@ -450,7 +463,7 @@ def setupclasssubjects():
 
 
 def newacadyear(): 
-    with console.status("[yellow]Archiving data, please wait...[/]", spinner="dots") as status:
+    with console.status("[yellow]Inserting data, please wait...[/]", spinner="dots") as status:
         setupsubjects()
         console.print("[green]Inserted new sample data for subjects table.[/]")
         setupexams()
@@ -469,7 +482,7 @@ def newacadyear():
         console.print("[green]Inserted new sample data for marks table.[/]")
         setupclasssubjects()
         console.print("[green]Inserted new sample data for classsubjects table.[/]")
-    
-#newacadyear() # use this after creating new acadyear
+        db.commit()
+newacadyear() # use this after creating new acadyear
 
 db.close()

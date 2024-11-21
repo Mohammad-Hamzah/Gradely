@@ -27,17 +27,17 @@
 * To log in as an admin, use Username and Password as admin1-welcom or hamzah-hamzahiisj.
 * To log in as teachers, select TID from the table below.
 ```
-+-------+--------------------+
-| ID    | TName              |
-+-------+--------------------+
-| 21023 | Mr. Sainuddeen     |
-| 22762 | Mr. Javed Aslam    |
-| 39387 | Mrs. Urooj Fatima  |
-| 42997 | Mr. Alavi Said     |
-| 45869 | Mrs. Sheenu Rajesh |
-| 89435 | Mrs. Shaniba       |
-| 96631 | Mrs. Nasera        |
-+-------+--------------------+
++-------+--------------------+-------+
+| ID    | TName              | Class |
++-------+--------------------+-------+
+| 39387 | Mrs. Urooj Fatima  | 12B01 |
+| 89435 | Mrs. Shaniba       | 12B02 |
+| 96631 | Mrs. Nasera        | 12B03 |
+| 21023 | Mr. Sainuddeen     | 12B04 |
+| 45869 | Mrs. Sheenu Rajesh | 12B05 |
+| 42997 | Mr. Alavi Said     | 12B06 |
+| 22762 | Mr. Javed Aslam    | 12B07 |
++-------+--------------------+-------+
 ```
 * The Password will be the first name followed by 'iisj'. Make sure first letter of name is uppercase. For eg. password for tid=21023 will be 'Sainuddeeniisj'.
 * Please note that a teacher can update marks for students belonging to their class only.

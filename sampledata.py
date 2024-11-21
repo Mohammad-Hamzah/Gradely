@@ -483,6 +483,6 @@ def newacadyear():
         setupclasssubjects()
         console.print("[green]Inserted new sample data for classsubjects table.[/]")
         db.commit()
-newacadyear() # use this after creating new acadyear
+#newacadyear() # use this after creating new acadyear
 
 db.close()

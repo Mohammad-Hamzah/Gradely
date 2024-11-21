@@ -24,8 +24,8 @@
 * Suggest ideas, if any, in the "Discussions" tab of this project.
 
 ## To use the program:
-* To log in as an admin, use Username and Password as admin1-welcom or hamzah-hamzahiisj.
-* To log in as teachers, select TID from the table below.
+* To log in as an admin, use Username and Password as admin1-welcome or hamzah-hamzahiisj.
+* To log in as teachers, select ID from the table below.
 ```
 +-------+--------------------+-------+
 | ID    | TName              | Class |
@@ -39,7 +39,7 @@
 | 22762 | Mr. Javed Aslam    | 12B07 |
 +-------+--------------------+-------+
 ```
-* The Password will be the first name followed by 'iisj'. Make sure first letter of name is uppercase. For eg. password for tid=21023 will be 'Sainuddeeniisj'.
+* The Password will be the first name followed by 'iisj'. Make sure first letter of name is uppercase. For eg. password for ID=21023 will be 'Sainuddeeniisj'.
 * Please note that a teacher can update marks for students belonging to their class only.
 * To see data for all students, run the following command in MySQL Client:
   

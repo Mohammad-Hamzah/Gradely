@@ -60,7 +60,7 @@
   
   `select * from students;`
   
-  You may select any Gr No. from here for testing purposes (Make sure you are logged in as the class teacher of the selected student's class).``
+  You may select any Gr No. from here for testing purposes (Make sure you are logged in as the class teacher of the selected student's class).
   For seeing data of students beloning to a specific class:
   
   `select * from students where class=(replace this bracket with the class enclosed in strings(quotes))`

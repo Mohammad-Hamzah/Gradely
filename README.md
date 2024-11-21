@@ -27,32 +27,17 @@
 * To log in as an admin, use Username and Password as admin1-welcom or hamzah-hamzahiisj.
 * To log in as teachers, select TID from the table below.
 ```
-+-------+---------------------+
-| TID | TName                 |
-+-------+---------------------+
-| 10715 | Mr. Aadil 	      |
-| 21023 | Mr. Sainuddeen      |
-| 22762 | Mr. Javed Aslam     |
-| 26248 | Mrs. Safa           |
-| 36257 | Mrs. Siddiqua Bano  |
-| 36527 | Mrs. Amena Khan     |
-| 36917 | Dr. Javeed Iftekhar |
-| 39308 | Mr. Mariadas Thomas |
-| 39387 | Mrs. Urooj Fatima   |
-| 42901 | Mr. Obaid Khan      |
-| 42997 | Mr. Alavi Said      |
-| 45869 | Mrs. Sheenu Rajesh  |
-| 46494 | Mr. Qurban          |
-| 47232 | Mrs. Farhana Khan   |
-| 62091 | Mr. Feroz Kidwai    |
-| 62198 | Mr. Imran Khan      |
-| 66176 | Mr. Altaf Hussain   |
-| 74786 | Mr. Hari Krishna    |
-| 79870 | Mr. Akram           |
-| 89435 | Mrs. Shaniba        |
-| 93429 | Mr. Biju Anthony    |
-| 96631 | Mrs. Nasera         |
-+-------+---------------------+
++-------+--------------------+
+| ID    | TName              |
++-------+--------------------+
+| 21023 | Mr. Sainuddeen     |
+| 22762 | Mr. Javed Aslam    |
+| 39387 | Mrs. Urooj Fatima  |
+| 42997 | Mr. Alavi Said     |
+| 45869 | Mrs. Sheenu Rajesh |
+| 89435 | Mrs. Shaniba       |
+| 96631 | Mrs. Nasera        |
++-------+--------------------+
 ```
 * The Password will be the first name followed by 'iisj'. Make sure first letter of name is uppercase. For eg. password for tid=10715 will be 'Aadiliisj'.
 * Please note that a teacher can update marks for students belonging to their class only.

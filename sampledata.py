@@ -3,9 +3,12 @@ import mysql.connector as sql
 import random
 from datetime import datetime, timedelta
 import bcrypt
+from rich.console import Console
 
 db=sql.connect(host='localhost',user='root',password='yoursql',database='gradely')
 cur=db.cursor()
+
+console=Console()
 
 def setupadm():
     dat={'admin1':'welcome','hamzah':'hamzahiisj'}
@@ -444,5 +447,29 @@ def setupclasssubjects():
 
     db.commit()
 #setupclasssubjects() #use this when creating sample for this table
+
+
+def newacadyear(): 
+    with console.status("[yellow]Archiving data, please wait...[/]", spinner="dots") as status:
+        setupsubjects()
+        console.print("[green]Inserted new sample data for subjects table.[/]")
+        setupexams()
+        console.print("[green]Inserted new sample data for exams table.[/]")
+        setupteachers()
+        console.print("[green]Inserted new sample data for teachers table.[/]")
+        setupteachersubjects()
+        console.print("[green]Inserted new sample data for teachersubjects table.[/]")
+        setupcls()
+        console.print("[green]Inserted new sample data for class table.[/]")
+        setupstudents() 
+        console.print("[green]Inserted new sample data for students table.[/]")
+        setupstudentsubjects()
+        console.print("[green]Inserted new sample data for studentsubjects table.[/]")
+        setupmarks()
+        console.print("[green]Inserted new sample data for marks table.[/]")
+        setupclasssubjects()
+        console.print("[green]Inserted new sample data for classsubjects table.[/]")
+    
+newacadyear() # use this after creating new acadyear
 
 db.close()

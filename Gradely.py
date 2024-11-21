@@ -134,7 +134,7 @@ def home():
                         if bcrypt.checkpw(inputpw.encode(), storedpw):
                             typewrite("Credentials verified.",color='bold green')
                             progress_bar(start='Logging in...',startcolor='bold green')
-                            admin(cred[0])
+                            admin(cred[0],inputpw)
                             flag=True
                             break
                         else:
@@ -245,7 +245,7 @@ def info(grno):
 
 
 
-def admin(adm):
+def admin(adm,storedpw):
     def new_acadyear():
         tables = ["Students", "Marks", "Subjects", "Exams", "Teachers", "TeacherSubjects", "Class", "ClassSubjects", "StudentSubjects"]
         
@@ -259,15 +259,18 @@ def admin(adm):
                     cur.execute(f"INSERT INTO {archive_table} SELECT *, '{acadyear}' FROM {table}")
                     
                     # Clear the original table
-                    cur.execute(f"TRUNCATE TABLE {table}")
-                    typewrite(f"Archived and cleared data for {table}\n", color='bold green')
-                
+                    cur.execute(f"DELETE FROM {table}")
+                    console.print(f"[green]Archived and cleared data for {table}[/]")
+                new_acadyearstart=int(yeardata[0])+1
+                new_acadyearend=int(yeardata[1])+1
+                cur.execute("DELETE FROM ACADYEAR")
+                cur.execute(F"INSERT INTO ACADYEAR VALUES({new_acadyearstart},{new_acadyearend})")
                 db.commit()
-                typewrite("Archiving process completed successfully! Returning home...\n", color='bold green')
-                return
+            typewrite("Archiving process completed successfully! Returning home...\n", color='bold green')
+            return
 
         except sql.Error as e:
-            typewrite(f"Error during archiving: {e}... Operation Terminated, Returning home...\n", color='bold red')
+            typewrite(f"Error during archiving: {e}...\nOperation Terminated, Returning home...\n", color='bold red')
             db.rollback()
             return
 
@@ -285,8 +288,10 @@ def admin(adm):
         name,father,mother,dob,cl,roll=stddata[0],stddata[1],stddata[2],stddata[3],stddata[4],stddata[5]
         s1,s2,s3,s4,s5=subdata[0],subdata[1],subdata[2],subdata[3],subdata[4]
         maxs1,maxs2,maxs3,maxs4,maxs5=maxmarks[0],maxmarks[1],maxmarks[2],maxmarks[3],maxmarks[4]
+        examshort,examname = '',''
+        ms1ut = ms2ut = ms3ut = ms4ut = ms5ut = 0
         if exam==1:
-            exam='Unit Test I'
+            examname='Unit Test I'
             examshort='UT1'
             ms1ut=ms1[0]
             ms2ut=ms2[0]
@@ -294,7 +299,7 @@ def admin(adm):
             ms4ut=ms4[0]
             ms5ut=ms5[0]
         elif exam==2:
-            exam='Unit Test II'
+            examname='Unit Test II'
             examshort='UT2'
             ms1ut=ms1[2]
             ms2ut=ms2[2]
@@ -346,7 +351,7 @@ def admin(adm):
         c.drawString(171, 248, "Class Teacher")  # x, y, and text
 
         data=[
-            ['Subject',f'{exam}',''],
+            ['Subject',f'{examname}',''],
             ['','Max.','Obt.'],
             [s1,maxs1,ms1ut],
             [s2,maxs2,ms2ut],
@@ -607,7 +612,7 @@ def admin(adm):
 
     #admin function content starts here
     while True:
-        typewrite(f"Welcome back, {adm}!\nPlease choose from the given options:\n1. Generate Report Card\n2. Start new academic year\n3. Change Password\n4. Logout\n5. Exit\n> ",color='bold cyan',end='')
+        typewrite(f"Welcome back, {adm}!\nPlease choose from the given options:\n1. Generate Report Card\n2. Start New Academic Year\n3. Change Password\n4. Logout\n5. Exit\n> ",color='bold cyan',end='')
         mainchoice=valid_input(['1','2','3','4','5'])
         if mainchoice=='1':
             typewrite("Please choose how you would like to generate report cards (enter '0' for home):\n1. Single Student\n2. Bulk Generation\n> ",color='bold cyan',end='')
@@ -631,7 +636,7 @@ def admin(adm):
                                 break
                             else:
                                 if chosenexam=='1':
-                                    minor_report(grno,'Unit Test I')
+                                    minor_report(grno,1)
                                     typewrite("Report generation started... Returning to home...",color='bold green')
                                     break
                                 elif chosenexam=='2':
@@ -639,7 +644,7 @@ def admin(adm):
                                     typewrite("Report generation started... Returning to home...",color='bold green')
                                     break
                                 elif chosenexam=='3':
-                                    minor_report(grno,'Unit Test II')
+                                    minor_report(grno,2)
                                     typewrite("Report generation started... Returning to home...",color='bold green')
                                     break
                                 elif chosenexam=='4':
@@ -681,16 +686,16 @@ def admin(adm):
                         for grno in tasks:
                             # Simulate report generation
                             if chosenexam == '1':
-                                minor_report(grno, 'Unit Test I', folder=f'{chosenclass}_UT1/')
+                                minor_report(grno, 1, folder=f'{chosenclass}_UT1/')
                             elif chosenexam == '2':
                                 hy_report(grno, folder=f'{chosenclass}_HY/')
                             elif chosenexam == '3':
-                                minor_report(grno, 'Unit Test II', folder=f'{chosenclass}_UT2/')
+                                minor_report(grno, 2, folder=f'{chosenclass}_UT2/')
                             elif chosenexam == '4':
                                 ae_report(grno, folder=f'{chosenclass}_AE/')
                             
                             # Log progress
-                            console.log(f"[green]Report for GRNo {grno} generated...[/]")
+                            console.print(f"[green]Report for GRNo {grno} generated...[/]")
 
                     typewrite("Successfully generated all reports. Returning home...", color="bold green")
 
@@ -708,11 +713,11 @@ def admin(adm):
                     p2=pwinput(prompt='')
                     if p2=='0':
                         break
-                    if p1==p2:
+                    if p1==p2==storedpw:
                         new_acadyear()
                         flag=True
                     else:
-                        typewrite("Passwords don't match. Please try again...",color='bold red')
+                        typewrite("Passwords incorrect or do not match. Please try again...",color='bold red')
 
             elif admchoice.lower()=='n':
                 typewrite("Returning Home...",color='bold yellow')
@@ -954,6 +959,7 @@ while True:
 
 if isdb:
     cur.execute("SELECT STARTYEAR,ENDYEAR FROM ACADYEAR")
+    global yeardata
     yeardata=cur.fetchone()
     acadyear=str(yeardata[0])+'-'+str(yeardata[1])
     home()

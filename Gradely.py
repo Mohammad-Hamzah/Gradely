@@ -125,16 +125,23 @@ def home():
 
                 cur.execute("SELECT * FROM ADM")
                 creds=cur.fetchall()
+                count=0
+                flag=False
                 for cred in creds:
+                    count+=1
                     if cred[0]==inputun:
                         storedpw=cred[1]
                         if bcrypt.checkpw(inputpw.encode(), storedpw):
                             typewrite("Credentials verified.",color='bold green')
                             progress_bar(start='Logging in...',startcolor='bold green')
                             admin(cred[0])
+                            flag=True
                             break
                         else:
                             typewrite("Incorrect username or password! Please try again!",color='bold red')
+                if count==len(creds) and not flag:
+                    typewrite("Incorrect username or password! Please try again!",color='bold red')
+
 
             else:
 
@@ -150,8 +157,11 @@ def home():
 
                 cur.execute("SELECT * FROM CTS")
                 creds=cur.fetchall()
+                count=0
+                flag=False
                 for cred in creds:
-                    if cred[0]==int(inputid):
+                    count+=1
+                    if str(cred[0])==inputid:
                         storedpw=cred[2]
                         if bcrypt.checkpw(inputpw.encode(), storedpw):
                             typewrite("Credentials verified.",color='bold green')
@@ -159,9 +169,10 @@ def home():
                             cur.execute("SELECT DISTINCT CLASS FROM CTS,CLASS WHERE CLASS.CTID=%s",(cred[0],))
                             cls=cur.fetchone()[0]
                             ct(cred[1],cls)
+                            flag=True
                             break
-                        else:
-                            typewrite("Incorrect ID or password! Please try again!",color='bold red')
+                if count==len(creds) and not flag:
+                    typewrite("Incorrect ID or password! Please try again!",color='bold red')
 
 def hash_pw(password):
     salt = bcrypt.gensalt()
@@ -235,27 +246,28 @@ def info(grno):
 
 
 def admin(adm):
-    def  new_acadyear():
-        tables = ["Students","Marks","Subjects","Exams","Teachers","TeacherSubjects","CTs","Class","ClassSubjects","StudentSubjects"]
-
-        # Transfer data to archive tables
+    def new_acadyear():
+        tables = ["Students", "Marks", "Subjects", "Exams", "Teachers", "TeacherSubjects", "Class", "ClassSubjects", "StudentSubjects"]
+        
         try:
-            for table in tables:
-                archive_table = f"{table}archive"
-                                
-                # Insert data with academic year into archive table
-                cur.execute(f"INSERT INTO {archive_table} SELECT *, '{acadyear}' FROM {table}")
+            # Add spinner for archiving process
+            with console.status("[yellow]Archiving data, please wait...[/]", spinner="dots") as status:
+                for table in tables:
+                    archive_table = f"{table}archive"
+                    
+                    # Insert data with academic year into archive table
+                    cur.execute(f"INSERT INTO {archive_table} SELECT *, '{acadyear}' FROM {table}")
+                    
+                    # Clear the original table
+                    cur.execute(f"TRUNCATE TABLE {table}")
+                    typewrite(f"Archived and cleared data for {table}\n", color='bold green')
                 
-                # Clear the original table
-                cur.execute(f"TRUNCATE TABLE {table}")
-                typewrite(f"Archived and cleared data for {table}",color='bold green')
-            
-            db.commit()
-            typewrite("Archiving process completed successfully!... Returning home...",color='bold green')
-            return
+                db.commit()
+                typewrite("Archiving process completed successfully! Returning home...\n", color='bold green')
+                return
 
         except sql.Error as e:
-            typewrite(f"Error during archiving: {e}... Operation Terminated, Returning home...",color='bold red')
+            typewrite(f"Error during archiving: {e}... Operation Terminated, Returning home...\n", color='bold red')
             db.rollback()
             return
 
@@ -683,8 +695,8 @@ def admin(adm):
                     typewrite("Successfully generated all reports. Returning home...", color="bold green")
 
         if mainchoice=='2':
-            typewrite("ARE YOU SURE ABOUT THAT? IF YOU PROCEED YOU WILL BE SOLELY REPONSIBLE FOR THIS! (Y/N)",color='bold red')
-            admchoice=valid_input['Y','y','N','n']
+            typewrite("ARE YOU SURE ABOUT THAT? IF YOU PROCEED YOU WILL BE SOLELY REPONSIBLE FOR THIS! (Y/N)\n> ",color='bold red',end='')
+            admchoice=valid_input(['Y','y','N','n'])
             if admchoice.lower()=='y':
                 flag=False
                 while not flag:

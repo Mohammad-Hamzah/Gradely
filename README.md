@@ -39,7 +39,7 @@
 | 96631 | Mrs. Nasera        |
 +-------+--------------------+
 ```
-* The Password will be the first name followed by 'iisj'. Make sure first letter of name is uppercase. For eg. password for tid=10715 will be 'Aadiliisj'.
+* The Password will be the first name followed by 'iisj'. Make sure first letter of name is uppercase. For eg. password for tid=21023 will be 'Sainuddeeniisj'.
 * Please note that a teacher can update marks for students belonging to their class only.
 * To see data for all students, run the following command in MySQL Client:
   

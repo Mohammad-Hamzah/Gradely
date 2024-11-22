@@ -25,14 +25,7 @@ console=Console()
 #colored typewriter function
 def typewrite(string,sec=0.01,color='bold cyan',end='\n'):
     for i in string:
-        rprint(f"[{color}]{i}[/{color}]", end='',flush=True)
-        '''If flush is set to false
-        and if you print multiple lines quickly, 
-        they may all be sent to the terminal 
-        in a single operation rather than one at a time.
-        so setting flush to false, prints it immediately,
-        also here console.print() was giving unexpected results (colored slashes and numbers differently) so using rprint'''
-        
+        rprint(f"[{color}]{i}[/{color}]", end='',flush=True)        
         time.sleep(sec)
     print(end=end)
 
@@ -107,7 +100,7 @@ def home():
         while True:
 
             if usertype=='0':
-                typewrite("Thanks for using our program!",color='bold green',end='')
+                typewrite("Thanks for using Gradely!",color='bold green',end='')
                 exit()
 
             if usertype=='1':
@@ -297,7 +290,7 @@ def admin(adm,storedpw):
         examshort,examname = '',''
         ms1ut = ms2ut = ms3ut = ms4ut = ms5ut = 0
         if exam==1:
-            examname='Unit Test I'
+            examname='Unit Test 1'
             examshort='UT1'
             ms1ut=ms1[0]
             ms2ut=ms2[0]
@@ -305,7 +298,7 @@ def admin(adm,storedpw):
             ms4ut=ms4[0]
             ms5ut=ms5[0]
         elif exam==2:
-            examname='Unit Test II'
+            examname='Unit Test 2'
             examshort='UT2'
             ms1ut=ms1[2]
             ms2ut=ms2[2]
@@ -465,7 +458,7 @@ def admin(adm,storedpw):
         c.drawString(171, 248, "Class Teacher")  # x, y, and text
 
         data=[
-            ['Subject','Unit Test I','','Half Yearly Exam',''],
+            ['Subject','Unit Test 1','','Half Yearly Exam',''],
             ['','Max.','Obt.','Max.','Obt.'],
             [s1,maxs1,ms1ut1,MAXS1,ms1hy],
             [s2,maxs2,ms2ut1,MAXS2,ms2hy],
@@ -575,7 +568,7 @@ def admin(adm,storedpw):
         c.drawString(171, 248, "Class Teacher")  # x, y, and text
 
         data=[
-            ['Subject','Unit Test I','','Half Yearly Exam','','Unit Test II','','Annual Exam',''],
+            ['Subject','Unit Test 1','','Half Yearly Exam','','Unit Test 2','','Annual Exam',''],
             ['','Max.','Obt.','Max.','Obt.','Max.','Obt.','Max.','Obt.'],
             [s1,maxs1,ms1ut1,MAXS1,ms1hy,maxs1,ms1ut2,MAXS1,ms1ae],
             [s2,maxs2,ms2ut1,MAXS2,ms2hy,maxs2,ms2ut2,MAXS2,ms2ae],
@@ -635,7 +628,7 @@ def admin(adm,storedpw):
                         if stddata==None:
                             typewrite("Data not found! Please try again!:\n> ",color='bold red',end='')
                         else:
-                            typewrite("Please choose the exam (enter '0' for home):\n1. Unit Test I\n2. Half Yearly Exam\n3. Unit Test II\n4. Annual Exam\n> ",color='bold cyan',end='')
+                            typewrite("Please choose the exam (enter '0' for home):\n1. Unit Test 1\n2. Half Yearly Exam\n3. Unit Test 2\n4. Annual Exam\n> ",color='bold cyan',end='')
                             
                             chosenexam=valid_input(['0','1','2','3','4'])
                             if chosenexam=='0':
@@ -675,7 +668,7 @@ def admin(adm,storedpw):
                 
                 chosenclass=cldata[clinput-1][0]
 
-                typewrite("Please choose the exam (enter '0' for home):\n1. Unit Test I\n2. Half Yearly Exam\n3. Unit Test II\n4. Annual Exam\n> ",color='bold cyan',end='')
+                typewrite("Please choose the exam (enter '0' for home):\n1. Unit Test 1\n2. Half Yearly Exam\n3. Unit Test 2\n4. Annual Exam\n> ",color='bold cyan',end='')
                 
                 chosenexam=valid_input(['0','1','2','3','4'])
                 if chosenexam=='0':
@@ -751,7 +744,7 @@ def admin(adm,storedpw):
         if mainchoice=='4':
             return
         if mainchoice=='5':
-            typewrite("Thanks for using our program!",color='bold green',end='')
+            typewrite("Thanks for using Gradely!",color='bold green',end='')
             exit()
 
 
@@ -759,9 +752,64 @@ def admin(adm,storedpw):
 
 def ct(tname,cls):
     while True:
-        typewrite(f"Welcome back, {tname}!\nPlease choose from the given options:\n1. Update Marks\n2. Update Password\n3. Logout\n4. Exit\n> ",color='bold cyan',end='')
-        mainchoice=valid_input(['1','2','3','4'])
+        typewrite(f"Welcome back, {tname}!\nPlease choose from the given options:\n1. Display Marks\n2. Update Marks\n3. Update Password\n4. Logout\n5. Exit\n> ",color='bold cyan',end='')
+        mainchoice=valid_input(['1','2','3','4','5'])
         if mainchoice=='1':
+            while True:
+                typewrite("Please choose the exam (enter '0' for home):\n1. Unit Test 1\n2. Half Yearly Exam\n3. Unit Test 2\n4. Annual Exam\n> ",color='bold cyan',end='')
+                
+                chosenexam=valid_input(['0','1','2','3','4'])
+                if chosenexam=='0':
+                    break
+                else:
+                    if chosenexam=='1':
+                        chosenexam='Unit Test 1'
+                    if chosenexam=='2':
+                        chosenexam='Half Yearly Exam'
+                    if chosenexam=='3':
+                        chosenexam='Unit Test 2'
+                    if chosenexam=='4':
+                        chosenexam='Annual Exam'
+
+                cur.execute("SELECT DISTINCT SUBNAME FROM STUDENTSUBJECTS,STUDENTS,SUBJECTS WHERE STUDENTSUBJECTS.GRNO=STUDENTS.GRNO AND SUBJECTS.SUBID=STUDENTSUBJECTS.SUBID AND STUDENTS.CLASS=%s",(cls,))
+                subjects=cur.fetchall()
+
+                        
+                typewrite(f"Please choose the subject (enter '0' for back): ")
+                count=1
+                for subject in subjects:
+                    typewrite(f"{count}. {subject[0]}",color='bold cyan')
+                    count+=1
+                typewrite("> ",color='bold cyan',end='')
+                chosensub=input()
+
+                if chosensub=='0':
+                    break
+                else:
+                    while not (chosensub.isdigit() and 1 <= int(chosensub) <= len(subjects)):
+                        typewrite("Please choose from the given options only!\n> ", color='bold yellow', end='')
+                        chosensub=input()
+                        
+                            
+                chosensub=subjects[int(chosensub)-1][0]
+
+                cur.execute("SELECT ROLL,NAME,MARKS FROM STUDENTS,MARKS WHERE STUDENTS.GRNO=MARKS.GRNO AND CLASS=%s AND SUBID=(SELECT SUBID FROM SUBJECTS WHERE SUBNAME=%s) AND EXAM=%s ORDER BY ROLL",(cls,chosensub,chosenexam))
+                stddata=cur.fetchall()
+                for std in stddata:
+                    roll=std[0]
+                    name=std[1]
+                    marks=std[2]
+
+                    typewrite(f"Roll no.: {roll}\nName: {name}\nMarks obtained in {chosensub} in {chosenexam}: {marks}",color='bold cyan')
+                    print()
+                    
+                typewrite("Done displaying results... Returning home...",color='bold green')
+                print()
+                break
+
+
+
+        elif mainchoice=='2':
             typewrite("Please choose how you would like to update marks (enter '0' for home):\n1. Single Student\n2. Bulk Update\n> ",color='bold cyan',end='')
             choice=valid_input(['0','1','2'])
             if choice=='1':
@@ -905,7 +953,7 @@ def ct(tname,cls):
                             typewrite("Marks updated for all students successfully... Returning to home!",color='bold green')
                             break
                         
-        if mainchoice=='2':
+        elif mainchoice=='3':
             flag=False
             while not flag:
                 typewrite("Enter new password ('0' for home):\n> ",color='bold yellow',end='')
@@ -924,10 +972,10 @@ def ct(tname,cls):
                     flag=True
                 else:
                     typewrite("Passwords don't match. Please try again...",color='bold red')
-        if mainchoice=='3':
+        elif mainchoice=='4':
             return
-        if mainchoice=='4':
-            typewrite("Thanks for using our program!",color='bold green',end='')
+        elif mainchoice=='5':
+            typewrite("Thanks for using Gradely!",color='bold green',end='')
             exit()
 #INTRO
 

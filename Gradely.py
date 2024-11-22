@@ -91,6 +91,16 @@ def dbconnect(cursor,database):
     typewrite("Database not found! Exiting program...",color='bold red')
     return False
 
+
+def intinput(errormsg="Please enter a whole number!\n> "):
+    while True:
+        inp = input()
+        if inp.isdigit() and int(inp) >= 0:  
+            return int(inp)
+        typewrite(f"{errormsg}",color='bold red', end='')
+
+
+
 def home():
     while True:
         typewrite("Welcome to Gradely!\nPlease choose how you would like to login ('0' to exit):\n1. Admin\n2. Teacher\n> ",color='bold cyan',end='')
@@ -619,14 +629,14 @@ def admin(adm,storedpw):
             if choice=='1':
                 while True:
                     typewrite("Please enter the student's Grno. (enter '0' for home):\n> ",color='bold cyan',end='')
-                    grno=int(input())
+                    grno=intinput(errormsg="Please enter a whole number! (enter '0' for home):\n> ")
                     if grno==0:
                         break
                     else:
                         cur.execute("SELECT * FROM STUDENTS WHERE GRNO=%s",(grno,))
                         stddata=cur.fetchone()
                         if stddata==None:
-                            typewrite("Data not found! Please try again!:\n> ",color='bold red',end='')
+                            typewrite("Data not found! Please try again!",color='bold red')
                         else:
                             typewrite("Please choose the exam (enter '0' for home):\n1. Unit Test 1\n2. Half Yearly Exam\n3. Unit Test 2\n4. Annual Exam\n> ",color='bold cyan',end='')
                             
@@ -661,11 +671,11 @@ def admin(adm,storedpw):
                     typewrite(f"{count}. {cl[0]}")   
                     count+=1                     
                 typewrite('> ',end='')
-                clinput=int(input())
-                while clinput not in range(0,len(cldata)+1):
+                clinput=input()
+                while not clinput.isdigit() or clinput not in range(0,len(cldata)+1):
                     typewrite("Please choose from the given options only!\n> ", color='bold yellow', end='')
-                    clinput=int(input())
-                
+                    clinput=input()
+                clinput=int(clinput)
                 chosenclass=cldata[clinput-1][0]
 
                 typewrite("Please choose the exam (enter '0' for home):\n1. Unit Test 1\n2. Half Yearly Exam\n3. Unit Test 2\n4. Annual Exam\n> ",color='bold cyan',end='')
@@ -815,14 +825,14 @@ def ct(tname,cls):
             if choice=='1':
                 while True:
                     typewrite("Please enter the student's Grno. (enter '0' for home):\n> ",color='bold cyan',end='')
-                    grno=int(input())
+                    grno=intinput(errormsg="Please enter a whole number! (enter '0' for home):\n> ")
                     if grno==0:
                         break
                     else:
                         cur.execute("SELECT * FROM STUDENTS WHERE GRNO=%s AND CLASS=%s",(grno,cls))
                         stddata=cur.fetchone()
                         if stddata==None:
-                            typewrite("Data not found! Please try again!:\n> ",color='bold red',end='')
+                            typewrite("Data not found! Please try again!",color='bold red')
                         else:
                             cur.execute("SELECT SUBJECTS.SUBNAME FROM STUDENTSUBJECTS,SUBJECTS WHERE GRNO=%s AND STUDENTSUBJECTS.SUBID=SUBJECTS.SUBID;",(grno,))
                             subjects=cur.fetchall()
@@ -840,6 +850,7 @@ def ct(tname,cls):
                             typewrite(f"Please choose the exam (enter '0' for home):\n1. {ut1}\n2. {hy}\n3. {ut2}\n4. {ae}\n> ",color='bold cyan',end='')
                             
                             chosenexam=valid_input(['0','1','2','3','4'])
+                            
                             if chosenexam=='0':
                                 break
                             else:
@@ -866,9 +877,14 @@ def ct(tname,cls):
                                     chosensub=s4
                                 if chosensub=='5':
                                     chosensub=s5
-                                
+                            cur.execute("SELECT MAXMARKS FROM EXAMS WHERE SUBID=(SELECT SUBID FROM SUBJECTS WHERE SUBNAME=%s) AND EXAM=%s",(chosensub,chosenexam))
+                            maxmarks=cur.fetchone()[0]
                             typewrite("Please enter new marks (enter '0' for home):\n> ",color='bold cyan',end='')
-                            newmarks=int(input())
+                            newmarks=input()
+                            while not newmarks.isdigit() or 0>int(newmarks) or int(newmarks)>maxmarks:
+                                typewrite(f"Please enter a whole number less than {maxmarks}!\n> ",color='bold red',end='')
+                                newmarks=input()
+                            newmarks=int(newmarks)
                             if newmarks==0:
                                 break
                             else:
@@ -921,16 +937,25 @@ def ct(tname,cls):
                             
                                 
                     chosensub=subjects[int(chosensub)-1][0]
+
+                    cur.execute("SELECT MAXMARKS FROM EXAMS WHERE SUBID=(SELECT SUBID FROM SUBJECTS WHERE SUBNAME=%s) AND EXAM=%s",(chosensub,chosenexam))
+                    maxmarks=cur.fetchone()[0]
+
                     cur.execute("SELECT STUDENTS.GRNO,STUDENTS.NAME,STUDENTS.ROLL FROM STUDENTS,STUDENTSUBJECTS WHERE STUDENTS.GRNO=STUDENTSUBJECTS.GRNO AND CLASS=%s AND STUDENTSUBJECTS.SUBID=(SELECT SUBID FROM SUBJECTS WHERE SUBNAME=%s) ORDER BY ROLL",(cls,chosensub))
                     stddata=cur.fetchall()
                     cnt=0
+
                     for std in stddata:
                         grno=std[0]
                         name=std[1]
                         roll=std[2]
 
                         typewrite(f"GR no.: {grno}\nName: {name}\nRoll no.: {roll}\nEnter Marks ('0' for back): \n> ",color='bold cyan',end='')
-                        newmarks=int(input())
+                        newmarks=input()
+                        while not newmarks.isdigit() or 0>int(newmarks) or int(newmarks)>maxmarks:
+                            typewrite(f"Please enter a whole number less than {maxmarks}!\n> ",color='bold red',end='')
+                            newmarks=input()
+                        newmarks=int(newmarks)
                     
                         if newmarks==0:
                             if cnt>0:

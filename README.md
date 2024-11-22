@@ -25,7 +25,7 @@
 
 ## To use the program:
 * To log in as an admin, use Username and Password as admin1-welcome or hamzah-hamzahiisj.
-* To log in as teachers, select TID from the table below.
+* To log in as teachers, select an ID from the table below.
 ```
 +-------+--------------------+-------+
 | ID    | TName              | Class |
@@ -43,12 +43,12 @@
 * Please note that a teacher can update marks for students belonging to their class only.
 * To see data for all students, run the following command in MySQL Client:
   
-  `select * from students;`
+  `SELECT * FROM STUDENTS;`
   
   You may select any Gr No. from here for testing purposes (Make sure you are logged in as the class teacher of the selected student's class).
   For seeing data of students beloning to a specific class:
   
-  `select * from students where class=(replace this bracket with the class enclosed in strings/quotes);`
+  `SELECT * FROM STUDENTS WHERE CLASS=(replace this bracket with the class enclosed in strings/quotes);`
   
   
 ## Special Thanks:

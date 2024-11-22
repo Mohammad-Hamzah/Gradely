@@ -24,8 +24,8 @@
 * Suggest ideas, if any, in the "Discussions" tab of this project.
 
 ## To use the program:
-* To log in as an admin, use Username and Password as admin1-welcom or hamzah-hamzahiisj.
-* To log in as teachers, select ID from the table below.
+* To log in as an admin, use Username and Password as admin1-welcome or hamzah-hamzahiisj.
+* To log in as teachers, select TID from the table below.
 ```
 +-------+--------------------+-------+
 | ID    | TName              | Class |

@@ -672,7 +672,7 @@ def admin(adm,storedpw):
                     count+=1                     
                 typewrite('> ',end='')
                 clinput=input()
-                while not clinput.isdigit() or clinput not in range(0,len(cldata)+1):
+                while not clinput.isdigit() or int(clinput) not in range(0,len(cldata)+1):
                     typewrite("Please choose from the given options only!\n> ", color='bold yellow', end='')
                     clinput=input()
                 clinput=int(clinput)

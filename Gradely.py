@@ -287,10 +287,10 @@ def admin(adm,storedpw):
 
         if folder!='':
             directory_name = f'results/{folder.rstrip('/')}'
-        try:
-            os.makedirs(directory_name,exist_ok=True)
-        except:
-            typewrite("Some Error Occured!",color='bold red')
+            try:
+                os.makedirs(directory_name,exist_ok=True)
+            except:
+                typewrite("Some Error Occured!",color='bold red')
 
 
         stddata,subdata,maxmarks,ms1,ms2,ms3,ms4,ms5=info(grno)
@@ -409,10 +409,10 @@ def admin(adm,storedpw):
 
         if folder!='':
             directory_name = f'results/{folder.rstrip('/')}'
-        try:
-            os.makedirs(directory_name,exist_ok=True)
-        except:
-            typewrite("Some Error Occured!",color='bold red')
+            try:
+                os.makedirs(directory_name,exist_ok=True)
+            except:
+                typewrite("Some Error Occured!",color='bold red')
 
 
         stddata,subdata,maxmarks,ms1,ms2,ms3,ms4,ms5=info(grno)
@@ -519,10 +519,10 @@ def admin(adm,storedpw):
 
         if folder!='':
             directory_name = f'results/{folder.rstrip('/')}'
-        try:
-            os.makedirs(directory_name,exist_ok=True)
-        except:
-            typewrite("Some Error Occured!",color='bold red')
+            try:
+                os.makedirs(directory_name,exist_ok=True)
+            except:
+                typewrite("Some Error Occured!",color='bold red')
 
 
         stddata,subdata,maxmarks,ms1,ms2,ms3,ms4,ms5=info(grno)
